@@ -11,7 +11,8 @@ public class MainFrame extends JFrame implements ActionListener {
 
     public static final String CREATE_MANDELBROT_TREE = "Create Mandelbrot Tree";
 
-    MandelbrotPointMap currentMandelBrotMap;
+
+    private ImageFrame currentImageFrame;
 
     private final Panel_Mandelbrot panelMandelbrot;
 
@@ -64,12 +65,22 @@ public class MainFrame extends JFrame implements ActionListener {
     public void createMandelBrotImage(MandelbrotPointMap mandelbrotPointMap) {
         new Thread(() -> {
             System.out.println("new Thread : Thread " + Thread.currentThread().getName());
-            new ImageFrame(mandelbrotPointMap,this).draw();
+            currentImageFrame = new ImageFrame(mandelbrotPointMap, this);
+            currentImageFrame.draw();
         }).start();
     }
 
     public void initNewMandelbrotMap(ComplexNumber center, Double width){
-        panelMandelbrot.init(center,width);
+        panelMandelbrot.init(center, width);
+        if (currentImageFrame != null) {
+            currentImageFrame.updatePreviewRect(center, width);
+        }
+    }
+
+    public void updatePreviewRect(ComplexNumber center, double width) {
+        if (currentImageFrame != null) {
+            currentImageFrame.updatePreviewRect(center, width);
+        }
     }
 
 }

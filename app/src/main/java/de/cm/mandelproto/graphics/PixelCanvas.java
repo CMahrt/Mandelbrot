@@ -29,12 +29,23 @@ public class PixelCanvas extends JComponent {
     private final BufferedImage image;
     private final IterationMap iterationMap;
     private final Color[] palette;
+    private Rectangle previewRect;
 
 
     @Override
-    public void paint(Graphics g) {
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
         g.drawImage(image, 0, 0, this);
-        super.paint(g);
+        if (previewRect != null) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setColor(Color.RED);
+            g2.draw(previewRect);
+        }
+    }
+
+    public void setPreviewRect(Rectangle previewRect) {
+        this.previewRect = previewRect;
+        repaint();
     }
 
     public void drawImage() {

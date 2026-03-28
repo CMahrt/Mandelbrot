@@ -4,6 +4,8 @@ import de.cm.mandelproto.graphics.PixelCanvas;
 import de.cm.mandelproto.math.ComplexNumber;
 import de.cm.mandelproto.math.IterationMap;
 
+import java.awt.Rectangle;
+
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -32,6 +34,22 @@ public class ImageFrame extends JFrame implements MouseListener {
     public void draw() {
         pixelCanvas.draw();
         System.out.println("drawed pixelCanvas ");
+    }
+
+    public void updatePreviewRect(ComplexNumber previewCenter, double previewWidth) {
+        double previewHeight   = previewWidth * (9.0 / 16.0);
+        double complexPerPixel = iterationMap.getWidth() / iterationMap.getStepOnWidth();
+        double mapLeft         = iterationMap.getCenter().getReal() - iterationMap.getWidth()  / 2;
+        double mapTop          = iterationMap.getCenter().getImag() + iterationMap.getHeight() / 2;
+
+        int previewLeft   = (int) ((previewCenter.getReal() - previewWidth  / 2 - mapLeft) / complexPerPixel);
+        int previewTop    = (int) ((mapTop - (previewCenter.getImag() + previewHeight / 2)) / complexPerPixel);
+        int previewRight  = (int) ((previewCenter.getReal() + previewWidth  / 2 - mapLeft) / complexPerPixel);
+        int previewBottom = (int) ((mapTop - (previewCenter.getImag() - previewHeight / 2)) / complexPerPixel);
+
+        pixelCanvas.setPreviewRect(
+                new Rectangle(previewLeft, previewTop, previewRight - previewLeft, previewBottom - previewTop)
+        );
     }
     @Override
     public void mouseClicked(MouseEvent e) {

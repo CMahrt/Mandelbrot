@@ -2,23 +2,23 @@ package de.cm.mandelproto.gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class DoubleTextField extends JPanel {
 
-    private final JPanel panel;
-    private final JLabel label;
     private final JTextField textField;
 
     public DoubleTextField(String label) {
         super();
-        panel = new JPanel(new GridLayout(0, 2));
-        this.label = new JLabel(label + " : ");
-        this.label.setHorizontalAlignment(JLabel.CENTER);
+        JPanel panel = new JPanel(new GridLayout(0, 2));
+        JLabel label1 = new JLabel(label + " : ");
+        label1.setHorizontalAlignment(JLabel.CENTER);
         this.textField = new JTextField();
         this.textField.setHorizontalAlignment(JTextField.CENTER);
-        panel.add(this.label);
+        panel.add(label1);
         panel.add(textField);
         addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent ke) {
@@ -33,5 +33,14 @@ public class DoubleTextField extends JPanel {
 
     public void setDouble(double x) {
         textField.setText(Double.toString(x));
+    }
+
+    public void addFocusLostListener(Runnable callback) {
+        textField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                callback.run();
+            }
+        });
     }
 }

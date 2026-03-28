@@ -5,8 +5,6 @@ import de.cm.mandelproto.math.MandelbrotPointMap;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class Panel_Mandelbrot extends JPanel{
 
@@ -34,6 +32,18 @@ public class Panel_Mandelbrot extends JPanel{
         centerPanel.add(dtf_centerReal);
         centerPanel.add(dtf_centerImag);
         centerPanel.add(dtf_width);
+
+        Runnable onFieldChanged = () -> {
+            try {
+                mainFrame.updatePreviewRect(
+                        new ComplexNumber(dtf_centerReal.getDouble(), dtf_centerImag.getDouble()),
+                        16 * dtf_width.getDouble()
+                );
+            } catch (NumberFormatException ignored) {}
+        };
+        dtf_centerReal.addFocusLostListener(onFieldChanged);
+        dtf_centerImag.addFocusLostListener(onFieldChanged);
+        dtf_width.addFocusLostListener(onFieldChanged);
 
         add(centerPanel);
         JPanel panel1 = new JPanel();

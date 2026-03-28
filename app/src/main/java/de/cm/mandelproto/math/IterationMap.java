@@ -96,7 +96,15 @@ public abstract class IterationMap {
         return stepOnHeight;
     }
 
+    public ComplexNumber getCenter() {
+        return center;
+    }
+
     public double getWidth() {
         return width;
+    }
+
+    public double getHeight() {
+        return height;
     }
 }
