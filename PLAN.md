@@ -55,6 +55,13 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 - [ ] Logarithmischer Slider für Zoomfaktor (da Zoom-Bereich viele Größenordnungen überspannt)
 - [ ] Ausschnittswahl per Maus (Rechteck aufziehen auf dem Fraktalbild)
 
+### Visueller Schnellzoom per Mausrad
+- [ ] Mausrad auf dem Fraktalbild skaliert das vorhandene BufferedImage (kein Neuberechnen)
+- [ ] Zoom zentriert auf die aktuelle Mausposition
+- [ ] Nur visuelles Feedback — Pixel werden unschärfer je weiter man reinzoomt
+- [ ] Steuerungsfenster aktualisiert Koordinaten und complexWidth passend zum Skalierungsfaktor
+- [ ] Erst ein expliziter Render-Aufruf (Ok-Button) berechnet das Bild in voller Qualität neu
+
 ### Koordinatenanzeige
 - [ ] X/Y-Koordinaten im Steuerungsfenster sind read-only (Anzeige, nicht Eingabe)
 - [ ] Mini-Map: kleine Übersicht des gesamten Mandelbrot-Sets mit Fadenkreuz für aktuelle Position
