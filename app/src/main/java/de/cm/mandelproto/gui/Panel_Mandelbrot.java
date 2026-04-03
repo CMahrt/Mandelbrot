@@ -1,5 +1,6 @@
 package de.cm.mandelproto.gui;
 
+import de.cm.mandelproto.graphics.Palette;
 import de.cm.mandelproto.math.ComplexNumber;
 import de.cm.mandelproto.math.MandelbrotPointMap;
 
@@ -18,6 +19,8 @@ public class Panel_Mandelbrot extends JPanel{
     private DoubleTextField tf_complexHeight;
     private IntTextField tf_pixelWidth;
     private IntTextField tf_pixelHeight;
+    private IntTextField tf_maxIterations;
+    private JComboBox<String> cb_palette;
 
     public Panel_Mandelbrot(MainFrame frame){
         super(new BorderLayout());
@@ -46,8 +49,17 @@ public class Panel_Mandelbrot extends JPanel{
         inputPanel.add(tf_centerImag);
         inputPanel.add(tf_complexWidth);
         inputPanel.add(tf_complexHeight);
+        tf_maxIterations = new IntTextField("Max. Iterationen");
+        tf_maxIterations.setInt(150);
+
+        cb_palette = new JComboBox<>(Palette.NAMES);
+        cb_palette.addActionListener(e -> mainFrame.applyPalette(Palette.byName(selectedPaletteName())));
         inputPanel.add(tf_pixelWidth);
         inputPanel.add(tf_pixelHeight);
+        inputPanel.add(tf_maxIterations);
+        inputPanel.add(new JLabel(""));
+        inputPanel.add(new JLabel("Palette"));
+        inputPanel.add(cb_palette);
 
         Runnable onFieldChanged = () -> {
             try {
@@ -78,9 +90,9 @@ public class Panel_Mandelbrot extends JPanel{
                         tf_complexWidth.getDouble(),
                         tf_complexHeight.getDouble(),
                         tf_pixelWidth.getInt(),
-                        250
+                        tf_maxIterations.getInt()
                 );
-        mainFrame.createMandelBrotImage(mandelbrotPointMap);
+        mainFrame.createMandelBrotImage(mandelbrotPointMap, Palette.byName(selectedPaletteName()));
     }
 
     private JButton getBtn_ok() {
@@ -111,5 +123,16 @@ public class Panel_Mandelbrot extends JPanel{
         }
         tf_pixelWidth.setInt(pixelWidth);
         tf_pixelHeight.setInt(pixelHeight);
+        tf_maxIterations.setInt(suggestMaxIterations(complexWidth));
+    }
+
+    private String selectedPaletteName() {
+        Object selected = cb_palette.getSelectedItem();
+        return selected != null ? (String) selected : Palette.NAMES[0];
+    }
+
+    private static int suggestMaxIterations(double complexWidth) {
+        // Bei Startbreite ~3.84 → 150; pro Faktor-10-Zoom +150
+        return Math.max(100, (int) (150 * Math.log10(38.4 / complexWidth)));
     }
 }

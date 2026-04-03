@@ -13,12 +13,12 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 - [ ] Palettengröße im Editor einstellbar
 
 ### Mapping: Iterationen → Palettenindex
-- [ ] `iterationCount % palette.length` (statt fester Index)
+- [v] `iterationCount % palette.length` (statt fester Index)
 - Effekt: kleine Palette → Konturlinien/Ringe; große Palette → weiche Übergänge
 
 ### Palette speichern & laden
 - [ ] Paletten als Dateien speichern/laden (inkl. Größe)
-- [ ] Vordefinierte Paletten mitliefern (Graustufen, Feuer, Regenbogen, ...)
+- [v] Vordefinierte Paletten mitliefern (Graustufen, Feuer, Regenbogen, Ozean)
 
 ### Running Colors (Palette Cycling)
 - [ ] Palette rotiert jeden Frame um 1 Eintrag (kein Neuberechnen des Fraktals)
@@ -36,8 +36,8 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 - [v] Auflösung (Breite × Höhe) einstellbar
 
 ### Iterationstiefe
-- [ ] Maximale Iterationszahl konfigurierbar (aktuell fest im Code)
-- [ ] Je tiefer der Zoom, desto höhere Tiefe nötig — Hinweis in der UI sinnvoll
+- [v] Maximale Iterationszahl konfigurierbar (Eingabefeld in Panel_Mandelbrot)
+- [v] Je tiefer der Zoom, desto höhere Tiefe nötig — automatischer Vorschlag in der UI
 
 ### Iterations-zu-Paletten-Kurve (Mapping)
 - [ ] Nicht-lineares Mapping von Iterationswert → Palettenindex
@@ -61,8 +61,8 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 - [ ] Koordinaten evtl. per Mini-Map direkt anklickbar/navigierbar
 
 ### Iterationstiefe (Empfehlung)
-- [ ] Iterationstiefe bleibt manuell eingebbar
-- [ ] Programm macht automatisch einen Vorschlag basierend auf Zoomfaktor
+- [v] Iterationstiefe bleibt manuell eingebbar
+- [v] Programm macht automatisch einen Vorschlag basierend auf Zoomfaktor
   - Faustformel: empfohlene Tiefe wächst logarithmisch mit dem Zoomfaktor
   - Vorschlag anzeigen, User kann übernehmen oder überschreiben
 
@@ -73,6 +73,14 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 - [ ] Visuelles D-Pad Widget (4 Pfeile + Umschalter "was wird gesteuert")
   - Desktop: optional als Alternative zu Tastatur
   - Android: einzige Steuerungsmöglichkeit (kein Keyboard)
+
+### Aktives Bild-Fenster
+- [ ] `MainFrame` kennt aktuell nur das zuletzt erstellte `ImageFrame` (`currentImageFrame`)
+- [ ] Steuerung (Palette, künftig Iterationstiefe etc.) wirkt immer auf dieses — nicht auf das vom User fokussierte Fenster
+- [ ] Lösung A: `ImageFrame` meldet sich beim Fokus-Gewinn bei `MainFrame` als aktiv (`setActiveImageFrame()`)
+- [ ] Lösung B: Beim neuen Render das alte Fenster schließen — immer nur ein Bild-Fenster offen
+
+---
 
 ### Bookmarks
 - [ ] Interessante Koordinaten mit Namen abspeichern

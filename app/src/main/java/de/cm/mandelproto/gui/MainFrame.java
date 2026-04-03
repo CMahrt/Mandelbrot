@@ -1,5 +1,6 @@
 package de.cm.mandelproto.gui;
 
+import de.cm.mandelproto.graphics.Palette;
 import de.cm.mandelproto.math.ComplexNumber;
 import de.cm.mandelproto.math.MandelbrotPointMap;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,7 @@ public class MainFrame extends JFrame implements ActionListener {
         getContentPane().add(panelMandelbrot);
 
         setVisible(true);
-        createMandelBrotImage(STARTINGMAP);
+        createMandelBrotImage(STARTINGMAP, Palette.grayscale());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     }
@@ -64,10 +65,10 @@ public class MainFrame extends JFrame implements ActionListener {
         //createDialog(this).setVisible(true);
     }
 
-    public void createMandelBrotImage(MandelbrotPointMap mandelbrotPointMap) {
+    public void createMandelBrotImage(MandelbrotPointMap mandelbrotPointMap, java.awt.Color[] palette) {
         new Thread(() -> {
             log.debug("new Thread : Thread {}", Thread.currentThread().getName());
-            currentImageFrame = new ImageFrame(mandelbrotPointMap, this);
+            currentImageFrame = new ImageFrame(mandelbrotPointMap, this, palette);
             currentImageFrame.draw();
         }).start();
     }
@@ -81,6 +82,12 @@ public class MainFrame extends JFrame implements ActionListener {
 
     public void triggerRender() {
         panelMandelbrot.triggerRender();
+    }
+
+    public void applyPalette(java.awt.Color[] palette) {
+        if (currentImageFrame != null) {
+            currentImageFrame.applyPalette(palette);
+        }
     }
 
     public void updatePreviewRect(ComplexNumber center, double width, double height) {

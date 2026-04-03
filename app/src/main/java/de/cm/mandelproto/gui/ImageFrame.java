@@ -19,14 +19,14 @@ public class ImageFrame extends JFrame implements MouseListener {
     private Point dragStart;
     private Rectangle draftRect;
 
-    public ImageFrame(IterationMap iterationMap, MainFrame mainFrame) {
+    public ImageFrame(IterationMap iterationMap, MainFrame mainFrame, java.awt.Color[] palette) {
         super();
         this.mainFrame = mainFrame;
         log.debug("create ImageFrame");
         this.iterationMap = iterationMap;
         setSize(iterationMap.getStepOnWidth(), iterationMap.getStepOnHeight() + 40);
         setResizable(false);
-        pixelCanvas = new PixelCanvas(getWidth(), getHeight(), iterationMap);
+        pixelCanvas = new PixelCanvas(getWidth(), getHeight(), iterationMap, palette);
         pixelCanvas.addMouseListener(this);
         pixelCanvas.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
@@ -62,6 +62,10 @@ public class ImageFrame extends JFrame implements MouseListener {
         add(pixelCanvas);
         setVisible(true);
         log.debug("created ImageFrame");
+    }
+
+    public void applyPalette(java.awt.Color[] palette) {
+        pixelCanvas.setPalette(palette);
     }
 
     public void draw() {
