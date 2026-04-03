@@ -5,11 +5,10 @@ import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
-public class DoubleTextField extends JPanel {
+public class IntTextField extends JPanel {
 
     private final JTextField textField;
-
-    public DoubleTextField(String label) {
+    public IntTextField(String label) {
         super();
         JPanel panel = new JPanel(new GridLayout(0, 2));
         JLabel label1 = new JLabel(label + " : ");
@@ -21,12 +20,16 @@ public class DoubleTextField extends JPanel {
         add(panel);
     }
 
-    public Double getDouble() {
-        return Double.parseDouble(textField.getText());
+    public int getInt() {
+        return Integer.parseInt(textField.getText());
     }
 
-    public void setDouble(double value) {
-        textField.setText(Double.toString(value));
+    public void setInt(int value) {
+        textField.setText(Integer.toString(value));
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        textField.setEditable(!readOnly);
     }
 
     public void addFocusLostListener(Runnable callback) {

@@ -19,8 +19,8 @@ public class MainFrame extends JFrame implements ActionListener {
     public final static MandelbrotPointMap STARTINGMAP =
             new MandelbrotPointMap(
                     new ComplexNumber(-.5d,0d),
-                    16*0.24d,
-                    9*0.24d,
+                    3.84d,
+                    2.16d,
                     1280,
                     250
             );
@@ -70,16 +70,16 @@ public class MainFrame extends JFrame implements ActionListener {
         }).start();
     }
 
-    public void initNewMandelbrotMap(ComplexNumber center, Double width){
-        panelMandelbrot.init(center, width);
+    public void initNewMandelbrotMap(ComplexNumber center, double width, double height) {
+        panelMandelbrot.init(center, width, height);
         if (currentImageFrame != null) {
-            currentImageFrame.updatePreviewRect(center, width);
+            currentImageFrame.updatePreviewRect(center, width, height);
         }
     }
 
-    public void updatePreviewRect(ComplexNumber center, double width) {
+    public void updatePreviewRect(ComplexNumber center, double width, double height) {
         if (currentImageFrame != null) {
-            currentImageFrame.updatePreviewRect(center, width);
+            currentImageFrame.updatePreviewRect(center, width, height);
         }
     }
 

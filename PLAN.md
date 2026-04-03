@@ -32,8 +32,8 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 ## Render-Parameter
 
 ### Bildformat
-- [ ] Seitenverhältnis frei wählbar (statt fix 16:9), z.B. 1:1, 4:3, 16:9, benutzerdefiniert
-- [ ] Auflösung (Breite × Höhe) einstellbar
+- [v] Seitenverhältnis frei wählbar (statt fix 16:9), z.B. 1:1, 4:3, 16:9, benutzerdefiniert
+- [v] Auflösung (Breite × Höhe) einstellbar
 
 ### Iterationstiefe
 - [ ] Maximale Iterationszahl konfigurierbar (aktuell fest im Code)

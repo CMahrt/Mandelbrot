@@ -1,49 +1,62 @@
-# CLAUDE.md
+ # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Diese Datei enthält Hinweise für Claude Code beim Arbeiten in diesem Repository.
 
-## Commands
+## Befehle
 
 ```bash
-# Build
+# Bauen
 ./gradlew build
 
-# Run the application
+# Anwendung starten
 ./gradlew run
 
-# Run tests
+# Tests ausführen
 ./gradlew test
 
-# Clean
+# Aufräumen
 ./gradlew clean
 ```
 
-Java 21 toolchain is configured. Gradle wrapper version is 8.9.
+Java 21 Toolchain ist konfiguriert. Gradle Wrapper Version 8.9.
 
-## Architecture
+## Feature-Planung
 
-This is a Mandelbrot set fractal visualizer built with Java Swing. The user can explore the fractal by clicking to zoom into regions or inputting custom coordinates.
+Alle geplanten Features sind in **`PLAN.md`** im Projektwurzel vermerkt.
+Status-Markierungen: `[ ]` offen, `[v]` erledigt, `[~]` in Arbeit.
 
-**Package structure:** `de.cm.mandelproto`
-- `App` — entry point; creates `MainFrame`
-- `gui/` — Swing UI components
-- `math/` — complex number arithmetic and Mandelbrot iteration logic
-- `graphics/` — pixel rendering to `BufferedImage`
+Vor dem Implementieren eines neuen Features: in `PLAN.md` nachschauen ob es dort steht, und den Status entsprechend setzen. Nach Abschluss `[v]` setzen.
 
-### Math layer
+## Architektur
 
-- `ComplexNumber` — immutable complex arithmetic (add, multiply, abs, conjugate)
-- `MandelbrotPoint` — single point; iterates z = z² + c until |z| > 2, tracking escape iteration count
-- `IterationMap` (abstract) — holds a 2D grid of points mapped to a region of the complex plane; two iteration strategies:
-  - `iterate()` — steps all points once
-  - `tileIterate()` — divide-and-conquer; detects fully-interior tiles and skips them for performance
-- `MandelbrotPointMap` — concrete `IterationMap` subclass
+Mandelbrot-Fraktal-Visualisierer auf Basis von Java Swing. Der Benutzer kann das Fraktal durch Klicken (Zoom) oder manuelle Koordinateneingabe erkunden.
 
-### GUI layer
+**Paketstruktur:** `de.cm.mandelproto`
+- `App` — Einstiegspunkt; erzeugt `MainFrame`
+- `gui/` — Swing-UI-Komponenten
+- `math/` — Komplexe Arithmetik und Mandelbrot-Iterationslogik
+- `graphics/` — Pixel-Rendering in `BufferedImage`
 
-- `MainFrame` — main window; hosts menu and `Panel_Mandelbrot` input dialog; spawns rendering threads
-- `ImageFrame` — displays the rendered fractal; mouse clicks compute the clicked complex coordinate and re-render centered there at half the current width (zoom in)
-- `Panel_Mandelbrot` — input dialog for center coordinates and zoom width
-- `PixelCanvas` — custom `JComponent`; owns a `BufferedImage` and maps iteration counts to a grayscale palette; repaints on update
+### Math-Schicht
 
-Rendering runs on a separate thread to keep the UI responsive.
+- `ComplexNumber` — unveränderliche komplexe Arithmetik (add, multiply, abs, conjugate)
+- `MandelbrotPoint` — einzelner Punkt; iteriert z = z² + c bis |z| > 2, zählt Escape-Iterationen
+- `IterationMap` (abstrakt) — hält ein 2D-Gitter von Punkten, abgebildet auf einen Bereich der komplexen Ebene; zwei Iterationsstrategien:
+  - `iterate()` — schrittweise alle Punkte einmal iterieren
+  - `tileIterate()` — Divide-and-Conquer; erkennt vollständig innere Kacheln und überspringt sie
+- `MandelbrotPointMap` — konkrete `IterationMap`-Unterklasse
+
+### GUI-Schicht
+
+- `MainFrame` — Hauptfenster; enthält Menü und `Panel_Mandelbrot`; startet Render-Threads
+- `ImageFrame` — zeigt das gerenderte Fraktal; Mausklick berechnet die komplexe Koordinate und rendert neu
+- `Panel_Mandelbrot` — Eingabedialog für Mittelpunkt (Real/Imag), komplexe Breite/Höhe, Pixelbreite (max. Bildschirmbreite); Pixelhöhe wird automatisch berechnet und angezeigt (read-only)
+- `PixelCanvas` — eigene `JComponent`; besitzt ein `BufferedImage` und bildet Iterationszahlen auf eine Graustufen-Palette ab
+- `DoubleTextField` / `IntTextField` — Hilfskomponenten: Label + Eingabefeld als Panel
+
+Das Rendering läuft in einem separaten Thread, damit die UI reaktionsfähig bleibt.
+
+### Wichtige Designentscheidungen
+
+- **Seitenverhältnis frei wählbar:** Breite und Höhe (komplex und Pixel) werden überall getrennt geführt — kein hardcodiertes 16:9 mehr. Die Pixelhöhe ergibt sich aus `(height/width) * pixelWidth`.
+- **Pixel-Maximum:** Die konfigurierbare Pixelbreite ist auf die Bildschirmbreite begrenzt; die Pixelhöhe darf die Bildschirmhöhe nicht überschreiten (kombinierte Validierung in `Panel_Mandelbrot.updatePixelDimensions()`).

@@ -36,8 +36,7 @@ public class ImageFrame extends JFrame implements MouseListener {
         System.out.println("drawed pixelCanvas ");
     }
 
-    public void updatePreviewRect(ComplexNumber previewCenter, double previewWidth) {
-        double previewHeight   = previewWidth * (9.0 / 16.0);
+    public void updatePreviewRect(ComplexNumber previewCenter, double previewWidth, double previewHeight) {
         double complexPerPixel = iterationMap.getWidth() / iterationMap.getStepOnWidth();
         double mapLeft         = iterationMap.getCenter().getReal() - iterationMap.getWidth()  / 2;
         double mapTop          = iterationMap.getCenter().getImag() + iterationMap.getHeight() / 2;
@@ -56,7 +55,7 @@ public class ImageFrame extends JFrame implements MouseListener {
         System.out.println("clicked on " + e.getX()+ ", "+e.getY());
         ComplexNumber clickedOn = iterationMap.getComplexNumberForCoordinate(e.getX(),e.getY());
         System.out.println("clicked on " + clickedOn.getReal()+ ", "+clickedOn.getImag());
-        mainFrame.initNewMandelbrotMap(clickedOn,iterationMap.getWidth()/2 );
+        mainFrame.initNewMandelbrotMap(clickedOn, iterationMap.getWidth() / 2, iterationMap.getHeight() / 2);
     }
 
     @Override

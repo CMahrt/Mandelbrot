@@ -6,35 +6,8 @@ package de.cm.mandelproto;
 import de.cm.mandelproto.gui.MainFrame;
 
 public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
 
     public static void main(String[] args) {
         new MainFrame();
-//        JFrame frame = new JFrame("Mandelbrot-Prototyp");
-//        frame.setSize(4*640,4*480);
-//        frame.setVisible(true);
-//
-//        MandelbrotPointMap mandelbrotPointMap =
-//                new MandelbrotPointMap(
-//                  new ComplexNumber(-0.5d, 0d),
-//                        5,
-//                        2.5,
-//                        2560,
-//                        50
-//                );
-//        PixelCanvas pixelCanvas = new PixelCanvas(frame.getWidth(),frame.getHeight(),mandelbrotPointMap);
-//        frame.add(pixelCanvas);
-//        pixelCanvas.draw();
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        long startTime = System.currentTimeMillis();
-//        for(int i =0 ; i<50;i++){
-//            mandelbrotPointMap.iterate();
-//            pixelCanvas.step();
-//        }
-//        System.out.println("time to compute = " + (System.currentTimeMillis()-startTime) + " ms " );
-
-        System.out.println("new App().getGreeting()");
     }
 }
