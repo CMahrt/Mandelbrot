@@ -1,5 +1,8 @@
 package de.cm.mandelproto.math;
 
+import lombok.Getter;
+
+@Getter
 public class ComplexNumber {
 
     private final double real;
@@ -51,14 +54,6 @@ public class ComplexNumber {
 
     public double abs() {
         return Math.sqrt((real*real) + (imag*imag));
-    }
-
-    public double getReal() {
-        return real;
-    }
-
-    public double getImag() {
-        return imag;
     }
 
     public ComplexNumber scale(double scale){

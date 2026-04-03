@@ -3,6 +3,7 @@ package de.cm.mandelproto.gui;
 import de.cm.mandelproto.graphics.PixelCanvas;
 import de.cm.mandelproto.math.ComplexNumber;
 import de.cm.mandelproto.math.IterationMap;
+import lombok.extern.slf4j.Slf4j;
 
 import java.awt.Rectangle;
 
@@ -10,6 +11,7 @@ import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+@Slf4j
 public class ImageFrame extends JFrame implements MouseListener {
 
     private final IterationMap iterationMap;
@@ -19,7 +21,7 @@ public class ImageFrame extends JFrame implements MouseListener {
     public ImageFrame(IterationMap iterationMap, MainFrame mainFrame) {
         super();
         this.mainFrame = mainFrame;
-        System.out.println("create ImageFrame");
+        log.debug("create ImageFrame");
         this.iterationMap = iterationMap;
         setSize(iterationMap.getStepOnWidth(), iterationMap.getStepOnHeight()+40);
         setResizable(false);
@@ -28,12 +30,12 @@ public class ImageFrame extends JFrame implements MouseListener {
         add(pixelCanvas);
         setVisible(true);
         //draw();
-        System.out.println("created ImageFrame");
+        log.debug("created ImageFrame");
     }
 
     public void draw() {
         pixelCanvas.draw();
-        System.out.println("drawed pixelCanvas ");
+        log.debug("drawed pixelCanvas");
     }
 
     public void updatePreviewRect(ComplexNumber previewCenter, double previewWidth, double previewHeight) {
@@ -52,21 +54,21 @@ public class ImageFrame extends JFrame implements MouseListener {
     }
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println("clicked on " + e.getX()+ ", "+e.getY());
+        log.debug("clicked on {}, {}", e.getX(), e.getY());
         ComplexNumber clickedOn = iterationMap.getComplexNumberForCoordinate(e.getX(),e.getY());
-        System.out.println("clicked on " + clickedOn.getReal()+ ", "+clickedOn.getImag());
+        log.debug("clicked on {}, {}", clickedOn.getReal(), clickedOn.getImag());
         mainFrame.initNewMandelbrotMap(clickedOn, iterationMap.getWidth() / 2, iterationMap.getHeight() / 2);
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        System.out.println("mousePressed on " + e.getX()+ ", "+e.getY());
+        log.debug("mousePressed on {}, {}", e.getX(), e.getY());
 
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        System.out.println("released on " + e.getX()+ ", "+e.getY());
+        log.debug("released on {}, {}", e.getX(), e.getY());
     }
 
     @Override

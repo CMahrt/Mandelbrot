@@ -1,5 +1,8 @@
 package de.cm.mandelproto.math;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public abstract class IterationMap {
 
     protected ComplexNumber center;
@@ -44,7 +47,7 @@ public abstract class IterationMap {
 
     private void tileIterate(int left, int top, int right, int bottom) {
         boolean floodTile = true;
-        //System.out.println("tileIterate " + left + ", " + top + " to " + right + ", " + bottom);
+        log.trace("tileIterate {}, {} to {}, {}", left, top, right, bottom);
         for (int i = left; i < right; i++) {
             while (points[i][top].getIteration() < maxIterations && points[i][top].iterate())
             floodTile &= points[i][top].getIteration() == maxIterations;
@@ -58,7 +61,7 @@ public abstract class IterationMap {
             floodTile &= points[right - 1][i].getIteration() == maxIterations;
         }
         if (floodTile) {
-            //System.out.println("flood " + left + ", " + top + " to " + right + ", " + bottom);
+            log.trace("flood {}, {} to {}, {}", left, top, right, bottom);
             for (int i = left + 1; i < right - 1; i++) {
                 for (int j = top; j < bottom - 1; j++) {
                     points[i][j].setIteration(maxIterations);
@@ -66,12 +69,12 @@ public abstract class IterationMap {
             }
         } else {
             if (right <= left && bottom <= top) {
-                //System.out.println("all done " );
+                log.trace("all done");
                 return;
             }
             int widthMiddle = (left + right) / 2;
             int heightMiddle = (top + bottom) / 2;
-            //System.out.println("tile " + widthMiddle + ", " + heightMiddle );
+            log.trace("tile {}, {}", widthMiddle, heightMiddle);
             tileIterate(left + 1, top + 1, widthMiddle, heightMiddle);
             tileIterate(widthMiddle, top + 1, right - 1, heightMiddle);
             tileIterate(left + 1, heightMiddle, widthMiddle, bottom - 1);

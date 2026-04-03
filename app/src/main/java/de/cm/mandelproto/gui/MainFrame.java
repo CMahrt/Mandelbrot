@@ -2,11 +2,13 @@ package de.cm.mandelproto.gui;
 
 import de.cm.mandelproto.math.ComplexNumber;
 import de.cm.mandelproto.math.MandelbrotPointMap;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+@Slf4j
 public class MainFrame extends JFrame implements ActionListener {
 
     public static final String CREATE_MANDELBROT_TREE = "Create Mandelbrot Tree";
@@ -58,13 +60,13 @@ public class MainFrame extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println("start actionPerformed : Thread " + Thread.currentThread().getName());
+        log.debug("start actionPerformed : Thread {}", Thread.currentThread().getName());
         //createDialog(this).setVisible(true);
     }
 
     public void createMandelBrotImage(MandelbrotPointMap mandelbrotPointMap) {
         new Thread(() -> {
-            System.out.println("new Thread : Thread " + Thread.currentThread().getName());
+            log.debug("new Thread : Thread {}", Thread.currentThread().getName());
             currentImageFrame = new ImageFrame(mandelbrotPointMap, this);
             currentImageFrame.draw();
         }).start();

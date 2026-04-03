@@ -1,5 +1,8 @@
 package de.cm.mandelproto.math;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class MandelbrotPointMap extends IterationMap {
     double step ;
     double left ;
@@ -25,10 +28,10 @@ public class MandelbrotPointMap extends IterationMap {
                         );
             }
 
-        System.out.println("stepOnHeight = " + stepOnHeight);
-        System.out.println("stepOnWidth = " + stepOnWidth);
-        System.out.println("top , bottom = " + top + "," + (top - stepOnHeight * step));
-        System.out.println("left , right = " + left + "," + (left + stepOnWidth * step));
+        log.debug("stepOnHeight = {}", stepOnHeight);
+        log.debug("stepOnWidth = {}", stepOnWidth);
+        log.debug("top , bottom = {},{}", top, (top - stepOnHeight * step));
+        log.debug("left , right = {},{}", left, (left + stepOnWidth * step));
     }
 
     @Override

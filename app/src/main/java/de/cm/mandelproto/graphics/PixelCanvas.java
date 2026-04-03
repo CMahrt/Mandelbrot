@@ -1,11 +1,13 @@
 package de.cm.mandelproto.graphics;
 
 import de.cm.mandelproto.math.IterationMap;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+@Slf4j
 public class PixelCanvas extends JComponent {
 
 
@@ -66,7 +68,7 @@ public class PixelCanvas extends JComponent {
 //        }
         iterationMap.tileIterate();
         drawImage();
-        System.out.println("time to compute = " + (System.currentTimeMillis() - startTime) + " ms ");
+        log.info("time to compute = {} ms", System.currentTimeMillis() - startTime);
 
     }
 }
