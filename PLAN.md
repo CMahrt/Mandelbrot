@@ -116,5 +116,36 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 
 ---
 
+## Darstellung & Fenster
+
+### Drehbarer Blickwinkel (Rotation)
+- [ ] Winkelparameter einführen (0°–360°, default 0°)
+- [ ] Pixel → komplexe Koordinate: Verschiebungsvektor vom Mittelpunkt wird vor der Umrechnung um den Winkel rotiert (2D-Rotationsmatrix)
+- [ ] Das Fraktal selbst bleibt unverändert — nur die Abtastrichtung dreht sich
+- [ ] Winkel einstellbar per Eingabefeld oder Slider in `Panel_Mandelbrot`
+- [ ] Bei 0° identisches Ergebnis wie bisher (achsenparallel)
+
+---
+
+### Scrollbares Fraktalbild
+- [ ] `PixelCanvas` in einen `JScrollPane` einbetten
+- [ ] Bild bleibt in voller Pixelgröße gerendert — kein Skalieren/Strecken
+- [ ] Scrollbalken erscheinen automatisch, wenn das Bild größer als das Fenster ist
+- [ ] Fenster darf kleiner als das Bild sein (kein erzwungenes Verkleinern des Bildes)
+
+---
+
+## Animation & Video
+
+### Zoom-Animation (Fly-Through)
+- [ ] Benutzer definiert Start- und Zielkoordinate (Mittelpunkt + Zoom) — z.B. per Bookmark
+- [ ] Programm berechnet N Zwischenframes (interpoliert Mittelpunkt und Zoomfaktor logarithmisch)
+- [ ] Frames werden vorab gerendert und im Speicher (oder auf Disk) gehalten
+- [ ] Abspielansicht zeigt die Frames als flüssiges Filmchen (einstellbare FPS)
+- [ ] Optionale Rotation entlang der Sequenz mitanimierbar (kombiniert mit Drehbarer-Blickwinkel-Feature)
+- [ ] Export der Framesequenz als Videodatei (z.B. MP4 via FFmpeg) oder animiertes GIF
+
+---
+
 ## Sonstiges
 <!-- TODO -->
