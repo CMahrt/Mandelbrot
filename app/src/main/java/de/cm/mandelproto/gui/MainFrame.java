@@ -1,6 +1,5 @@
 package de.cm.mandelproto.gui;
 
-import de.cm.mandelproto.graphics.Palette;
 import de.cm.mandelproto.math.ComplexNumber;
 import de.cm.mandelproto.math.MandelbrotPointMap;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +13,6 @@ public class MainFrame extends JFrame implements ActionListener {
 
     public static final String CREATE_MANDELBROT_TREE = "Create Mandelbrot Tree";
 
-
     private ImageFrame currentImageFrame;
     private RunningColorsFrame runningColorsFrame;
 
@@ -22,7 +20,7 @@ public class MainFrame extends JFrame implements ActionListener {
 
     public final static MandelbrotPointMap STARTINGMAP =
             new MandelbrotPointMap(
-                    new ComplexNumber(-.5d,0d),
+                    new ComplexNumber(-.5d, 0d),
                     3.84d,
                     2.16d,
                     1280,
@@ -31,19 +29,14 @@ public class MainFrame extends JFrame implements ActionListener {
 
     public MainFrame() {
         super();
-
         createMenu();
-
         setSize(480, 240);
         setAlwaysOnTop(true);
-
         panelMandelbrot = new Panel_Mandelbrot(this);
         getContentPane().add(panelMandelbrot);
-
         setVisible(true);
-        createMandelBrotImage(STARTINGMAP, Palette.grayscale());
+        createMandelBrotImage(STARTINGMAP);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
     }
 
     private void createMenu() {
@@ -63,7 +56,7 @@ public class MainFrame extends JFrame implements ActionListener {
         JMenuItem itemRunningColors = new JMenuItem("Running Colors...");
         itemRunningColors.addActionListener(e -> {
             if (runningColorsFrame == null || !runningColorsFrame.isDisplayable()) {
-                runningColorsFrame = new RunningColorsFrame(this);
+                runningColorsFrame = new RunningColorsFrame(panelMandelbrot.getPalette());
             }
             runningColorsFrame.setVisible(true);
         });
@@ -75,16 +68,13 @@ public class MainFrame extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         log.debug("start actionPerformed : Thread {}", Thread.currentThread().getName());
-        //createDialog(this).setVisible(true);
     }
 
-    public void createMandelBrotImage(MandelbrotPointMap mandelbrotPointMap, java.awt.Color[] palette) {
-        stopCycling();
+    public void createMandelBrotImage(MandelbrotPointMap mandelbrotPointMap) {
         new Thread(() -> {
             log.debug("new Thread : Thread {}", Thread.currentThread().getName());
-            currentImageFrame = new ImageFrame(mandelbrotPointMap, this, palette);
+            currentImageFrame = new ImageFrame(mandelbrotPointMap, this, panelMandelbrot.getPalette());
             currentImageFrame.draw();
-            if (runningColorsFrame != null) runningColorsFrame.applyCyclingState();
         }).start();
     }
 
@@ -99,36 +89,9 @@ public class MainFrame extends JFrame implements ActionListener {
         panelMandelbrot.triggerRender();
     }
 
-    public void applyPalette(java.awt.Color[] palette) {
-        if (currentImageFrame != null) {
-            currentImageFrame.applyPalette(palette);
-        }
-    }
-
-    public void startCycling(int intervalMs, int devR, int devG, int devB) {
-        if (currentImageFrame != null) currentImageFrame.startCycling(intervalMs, devR, devG, devB);
-    }
-
-    public void stopCycling() {
-        if (currentImageFrame != null) currentImageFrame.stopCycling();
-    }
-
-    public void setCycleInterval(int intervalMs) {
-        if (currentImageFrame != null) currentImageFrame.setCycleInterval(intervalMs);
-    }
-
-    public void setCycleDeviationR(int dev) { if (currentImageFrame != null) currentImageFrame.setCycleDeviationR(dev); }
-    public void setCycleDeviationG(int dev) { if (currentImageFrame != null) currentImageFrame.setCycleDeviationG(dev); }
-    public void setCycleDeviationB(int dev) { if (currentImageFrame != null) currentImageFrame.setCycleDeviationB(dev); }
-
-    public void setCycleDirection(boolean forward) {
-        if (currentImageFrame != null) currentImageFrame.setCycleDirection(forward);
-    }
-
     public void updatePreviewRect(ComplexNumber center, double width, double height) {
         if (currentImageFrame != null) {
             currentImageFrame.updatePreviewRect(center, width, height);
         }
     }
-
 }

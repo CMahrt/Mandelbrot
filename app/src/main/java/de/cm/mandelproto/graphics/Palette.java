@@ -1,73 +1,78 @@
 package de.cm.mandelproto.graphics;
 
+import lombok.Setter;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class Palette {
 
-    public static final String[] NAMES = {"Graustufen", "Feuer", "Regenbogen", "Ozean"};
+    private Color[] colors;
+    private final List<ChangeListener> listeners = new ArrayList<>();
+    private final Random rnd = new Random();
+    private Timer cycleTimer;
+    @Setter private int deviationR = 5;
+    @Setter private int deviationG = 5;
+    @Setter private int deviationB = 5;
+    @Setter private boolean forward = true;
 
-    public static Color[] byName(String name) {
-        return switch (name) {
-            case "Feuer"      -> fire();
-            case "Regenbogen" -> rainbow();
-            case "Ozean"      -> ocean();
-            default           -> grayscale();
-        };
+    public Palette(Color[] initial) {
+        this.colors = initial.clone();
     }
 
-    public static Color[] grayscale() {
-        Color[] p = new Color[256];
-        for (int i = 0; i < 256; i++) p[i] = new Color(i, i, i);
-        return p;
+    public int getColor(int iteration) {
+        return colors[iteration % colors.length].getRGB();
     }
 
-    public static Color[] fire() {
-        // schwarz → rot → orange → gelb → weiß
-        Color[] keyColors = {
-            new Color(0, 0, 0),
-            new Color(180, 0, 0),
-            new Color(255, 100, 0),
-            new Color(255, 220, 0),
-            new Color(255, 255, 255)
-        };
-        return interpolate(keyColors, 256);
+    public void loadColors(Color[] newColors) {
+        this.colors = newColors.clone();
+        fireChange();
     }
 
-    public static Color[] rainbow() {
-        Color[] p = new Color[256];
-        for (int i = 0; i < 256; i++) {
-            p[i] = Color.getHSBColor(i / 256f, 1f, 1f);
+    public void startCycling(int intervalMs) {
+        if (cycleTimer != null) cycleTimer.stop();
+        cycleTimer = new Timer(intervalMs, e -> { rotatePalette(); fireChange(); });
+        cycleTimer.start();
+    }
+
+    public void stopCycling() {
+        if (cycleTimer != null) {
+            cycleTimer.stop();
+            cycleTimer = null;
         }
-        return p;
     }
 
-    public static Color[] ocean() {
-        // schwarz → dunkelblau → cyan → weiß
-        Color[] keyColors = {
-            new Color(0, 0, 0),
-            new Color(0, 0, 128),
-            new Color(0, 128, 255),
-            new Color(0, 220, 220),
-            new Color(255, 255, 255)
-        };
-        return interpolate(keyColors, 256);
+    public void setInterval(int ms) { if (cycleTimer != null) cycleTimer.setDelay(ms); }
+
+    public void addChangeListener(ChangeListener l)    { listeners.add(l); }
+    public void removeChangeListener(ChangeListener l) { listeners.remove(l); }
+
+    private void rotatePalette() {
+        Color neighbor = forward ? colors[colors.length - 1] : colors[0];
+        if (forward) System.arraycopy(colors, 1, colors, 0, colors.length - 1);
+        else         System.arraycopy(colors, 0, colors, 1, colors.length - 1);
+        colors[forward ? colors.length - 1 : 0] = randomDeviation(neighbor);
     }
 
-    private static Color[] interpolate(Color[] keys, int size) {
-        Color[] result = new Color[size];
-        int segments = keys.length - 1;
-        for (int i = 0; i < size; i++) {
-            double t = (double) i / (size - 1) * segments;
-            int seg = Math.min((int) t, segments - 1);
-            double f = t - seg;
-            Color a = keys[seg];
-            Color b = keys[seg + 1];
-            result[i] = new Color(
-                (int) (a.getRed()   + f * (b.getRed()   - a.getRed())),
-                (int) (a.getGreen() + f * (b.getGreen() - a.getGreen())),
-                (int) (a.getBlue()  + f * (b.getBlue()  - a.getBlue()))
-            );
+    private Color randomDeviation(Color base) {
+        return new Color(
+            Math.clamp(base.getRed()   + rnd.nextInt(2 * deviationR + 1) - deviationR, 0, 255),
+            Math.clamp(base.getGreen() + rnd.nextInt(2 * deviationG + 1) - deviationG, 0, 255),
+            Math.clamp(base.getBlue()  + rnd.nextInt(2 * deviationB + 1) - deviationB, 0, 255)
+        );
+    }
+
+    private void fireChange() {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(this::fireChange);
+            return;
         }
-        return result;
+        ChangeEvent evt = new ChangeEvent(this);
+        List.copyOf(listeners).forEach(l -> l.stateChanged(evt));
     }
 }

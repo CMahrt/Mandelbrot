@@ -1,12 +1,12 @@
 package de.cm.mandelproto.gui;
 
+import de.cm.mandelproto.graphics.Palette;
 import de.cm.mandelproto.graphics.PixelCanvas;
 import de.cm.mandelproto.math.ComplexNumber;
 import de.cm.mandelproto.math.IterationMap;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
-import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -20,13 +20,7 @@ public class ImageFrame extends JFrame implements MouseListener {
     private Point dragStart;
     private Rectangle draftRect;
 
-    private Timer cycleTimer;
-    private int deviationR = 5;
-    private int deviationG = 5;
-    private int deviationB = 5;
-    private boolean cycleForward = true;
-
-    public ImageFrame(IterationMap iterationMap, MainFrame mainFrame, java.awt.Color[] palette) {
+    public ImageFrame(IterationMap iterationMap, MainFrame mainFrame, Palette palette) {
         super();
         this.mainFrame = mainFrame;
         log.debug("create ImageFrame");
@@ -70,41 +64,11 @@ public class ImageFrame extends JFrame implements MouseListener {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                stopCycling();
+                palette.stopCycling();
             }
         });
         setVisible(true);
         log.debug("created ImageFrame");
-    }
-
-    public void applyPalette(java.awt.Color[] palette) {
-        pixelCanvas.setPalette(palette);
-    }
-
-    public void startCycling(int intervalMs, int devR, int devG, int devB) {
-        this.deviationR = devR;
-        this.deviationG = devG;
-        this.deviationB = devB;
-        if (cycleTimer != null) cycleTimer.stop();
-        cycleTimer = new Timer(intervalMs, e ->
-                pixelCanvas.rotatePalette(this.deviationR, this.deviationG, this.deviationB, this.cycleForward));
-        cycleTimer.start();
-    }
-
-    public void stopCycling() {
-        if (cycleTimer != null) cycleTimer.stop();
-    }
-
-    public void setCycleInterval(int intervalMs) {
-        if (cycleTimer != null) cycleTimer.setDelay(intervalMs);
-    }
-
-    public void setCycleDeviationR(int dev) { this.deviationR = dev; }
-    public void setCycleDeviationG(int dev) { this.deviationG = dev; }
-    public void setCycleDeviationB(int dev) { this.deviationB = dev; }
-
-    public void setCycleDirection(boolean forward) {
-        this.cycleForward = forward;
     }
 
     public void draw() {
@@ -149,7 +113,6 @@ public class ImageFrame extends JFrame implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        // Single click (no drag): Zoom zur Hälfte, zentriert auf Klickpunkt
         if (draftRect != null && draftRect.width >= 5 && draftRect.height >= 5) return;
         log.debug("clicked on {}, {}", e.getX(), e.getY());
         ComplexNumber clickedOn = iterationMap.getComplexNumberForCoordinate(e.getX(), e.getY());
@@ -172,9 +135,6 @@ public class ImageFrame extends JFrame implements MouseListener {
         }
     }
 
-    @Override
-    public void mouseEntered(MouseEvent e) {}
-
-    @Override
-    public void mouseExited(MouseEvent e) {}
+    @Override public void mouseEntered(MouseEvent e) {}
+    @Override public void mouseExited(MouseEvent e) {}
 }
