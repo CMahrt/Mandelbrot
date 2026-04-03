@@ -21,11 +21,11 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 - [v] Vordefinierte Paletten mitliefern (Graustufen, Feuer, Regenbogen, Ozean)
 
 ### Running Colors (Palette Cycling)
-- [ ] Palette rotiert jeden Frame um 1 Eintrag (kein Neuberechnen des Fraktals)
-- [ ] Neuer Eintrag weicht zufällig vom letzten ab
-- [ ] Parameter `deviation` (0–255): Stärke der Farbabweichung
-- [ ] Animationsgeschwindigkeit steuerbar
-- [ ] Start/Stop steuerbar
+- [v] Palette rotiert jeden Frame um 1 Eintrag (kein Neuberechnen des Fraktals)
+- [v] Neuer Eintrag weicht zufällig vom letzten ab
+- [v] Parameter `deviation` (0–255): Stärke der Farbabweichung
+- [v] Animationsgeschwindigkeit steuerbar
+- [v] Start/Stop steuerbar
 
 ---
 

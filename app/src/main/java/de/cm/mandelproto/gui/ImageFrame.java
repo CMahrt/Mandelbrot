@@ -6,6 +6,7 @@ import de.cm.mandelproto.math.IterationMap;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -18,6 +19,12 @@ public class ImageFrame extends JFrame implements MouseListener {
 
     private Point dragStart;
     private Rectangle draftRect;
+
+    private Timer cycleTimer;
+    private int deviationR = 5;
+    private int deviationG = 5;
+    private int deviationB = 5;
+    private boolean cycleForward = true;
 
     public ImageFrame(IterationMap iterationMap, MainFrame mainFrame, java.awt.Color[] palette) {
         super();
@@ -60,12 +67,44 @@ public class ImageFrame extends JFrame implements MouseListener {
             }
         });
         add(pixelCanvas);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                stopCycling();
+            }
+        });
         setVisible(true);
         log.debug("created ImageFrame");
     }
 
     public void applyPalette(java.awt.Color[] palette) {
         pixelCanvas.setPalette(palette);
+    }
+
+    public void startCycling(int intervalMs, int devR, int devG, int devB) {
+        this.deviationR = devR;
+        this.deviationG = devG;
+        this.deviationB = devB;
+        if (cycleTimer != null) cycleTimer.stop();
+        cycleTimer = new Timer(intervalMs, e ->
+                pixelCanvas.rotatePalette(this.deviationR, this.deviationG, this.deviationB, this.cycleForward));
+        cycleTimer.start();
+    }
+
+    public void stopCycling() {
+        if (cycleTimer != null) cycleTimer.stop();
+    }
+
+    public void setCycleInterval(int intervalMs) {
+        if (cycleTimer != null) cycleTimer.setDelay(intervalMs);
+    }
+
+    public void setCycleDeviationR(int dev) { this.deviationR = dev; }
+    public void setCycleDeviationG(int dev) { this.deviationG = dev; }
+    public void setCycleDeviationB(int dev) { this.deviationB = dev; }
+
+    public void setCycleDirection(boolean forward) {
+        this.cycleForward = forward;
     }
 
     public void draw() {

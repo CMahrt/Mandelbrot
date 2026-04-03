@@ -16,6 +16,7 @@ public class MainFrame extends JFrame implements ActionListener {
 
 
     private ImageFrame currentImageFrame;
+    private RunningColorsFrame runningColorsFrame;
 
     private final Panel_Mandelbrot panelMandelbrot;
 
@@ -56,6 +57,18 @@ public class MainFrame extends JFrame implements ActionListener {
         menuItem.addActionListener(this);
         menuCreate.add(menuItem);
 
+        JMenu menuAnsicht = new JMenu("Ansicht");
+        menuBar.add(menuAnsicht);
+
+        JMenuItem itemRunningColors = new JMenuItem("Running Colors...");
+        itemRunningColors.addActionListener(e -> {
+            if (runningColorsFrame == null || !runningColorsFrame.isDisplayable()) {
+                runningColorsFrame = new RunningColorsFrame(this);
+            }
+            runningColorsFrame.setVisible(true);
+        });
+        menuAnsicht.add(itemRunningColors);
+
         setJMenuBar(menuBar);
     }
 
@@ -66,10 +79,12 @@ public class MainFrame extends JFrame implements ActionListener {
     }
 
     public void createMandelBrotImage(MandelbrotPointMap mandelbrotPointMap, java.awt.Color[] palette) {
+        stopCycling();
         new Thread(() -> {
             log.debug("new Thread : Thread {}", Thread.currentThread().getName());
             currentImageFrame = new ImageFrame(mandelbrotPointMap, this, palette);
             currentImageFrame.draw();
+            if (runningColorsFrame != null) runningColorsFrame.applyCyclingState();
         }).start();
     }
 
@@ -88,6 +103,26 @@ public class MainFrame extends JFrame implements ActionListener {
         if (currentImageFrame != null) {
             currentImageFrame.applyPalette(palette);
         }
+    }
+
+    public void startCycling(int intervalMs, int devR, int devG, int devB) {
+        if (currentImageFrame != null) currentImageFrame.startCycling(intervalMs, devR, devG, devB);
+    }
+
+    public void stopCycling() {
+        if (currentImageFrame != null) currentImageFrame.stopCycling();
+    }
+
+    public void setCycleInterval(int intervalMs) {
+        if (currentImageFrame != null) currentImageFrame.setCycleInterval(intervalMs);
+    }
+
+    public void setCycleDeviationR(int dev) { if (currentImageFrame != null) currentImageFrame.setCycleDeviationR(dev); }
+    public void setCycleDeviationG(int dev) { if (currentImageFrame != null) currentImageFrame.setCycleDeviationG(dev); }
+    public void setCycleDeviationB(int dev) { if (currentImageFrame != null) currentImageFrame.setCycleDeviationB(dev); }
+
+    public void setCycleDirection(boolean forward) {
+        if (currentImageFrame != null) currentImageFrame.setCycleDirection(forward);
     }
 
     public void updatePreviewRect(ComplexNumber center, double width, double height) {

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 
 @Slf4j
 public class PixelCanvas extends JComponent {
@@ -26,6 +27,7 @@ public class PixelCanvas extends JComponent {
     private final IterationMap iterationMap;
     private Color[] palette;
     private Rectangle previewRect;
+    private final Random rnd = new Random();
 
 
     @Override
@@ -59,6 +61,31 @@ public class PixelCanvas extends JComponent {
         repaint();
     }
 
+
+    public void rotatePalette(int devR, int devG, int devB, boolean forward) {
+        Color neighbor;
+        if (forward) {
+            // Links-Shift: neuer Eintrag am Ende (innen → außen)
+            neighbor = palette[palette.length - 1];
+            System.arraycopy(palette, 1, palette, 0, palette.length - 1);
+            palette[palette.length - 1] = randomDeviation(neighbor, devR, devG, devB);
+        } else {
+            // Rechts-Shift: neuer Eintrag am Anfang (außen → innen)
+            neighbor = palette[0];
+            System.arraycopy(palette, 0, palette, 1, palette.length - 1);
+            palette[0] = randomDeviation(neighbor, devR, devG, devB);
+        }
+        drawImage();
+    }
+
+    private Color randomDeviation(Color base, int devR, int devG, int devB) {
+        int r = clamp(base.getRed()   + rnd.nextInt(2 * devR + 1) - devR);
+        int g = clamp(base.getGreen() + rnd.nextInt(2 * devG + 1) - devG);
+        int b = clamp(base.getBlue()  + rnd.nextInt(2 * devB + 1) - devB);
+        return new Color(r, g, b);
+    }
+
+    private int clamp(int v) { return Math.max(0, Math.min(255, v)); }
 
     public void draw(){
         long startTime = System.currentTimeMillis();
