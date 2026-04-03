@@ -67,9 +67,9 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
   - Vorschlag anzeigen, User kann übernehmen oder überschreiben
 
 ### Präzise Ausschnittswahl
-- [ ] Maus zieht Rechteck grob auf
-- [ ] Pfeiltasten: gesamtes Rechteck fein verschieben
-- [ ] Shift + Pfeiltasten: nur eine Kante verschieben (oben / unten / links / rechts einzeln)
+- [v] Maus zieht Rechteck grob auf
+- [v] Pfeiltasten: gesamtes Rechteck fein verschieben
+- [v] Shift + Pfeiltasten: Breite/Höhe des Rechtecks ändern (Links/Rechts = Breite, Oben/Unten = Höhe)
 - [ ] Visuelles D-Pad Widget (4 Pfeile + Umschalter "was wird gesteuert")
   - Desktop: optional als Alternative zu Tastatur
   - Android: einzige Steuerungsmöglichkeit (kein Keyboard)

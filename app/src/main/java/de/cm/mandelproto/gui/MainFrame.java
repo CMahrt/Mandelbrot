@@ -79,6 +79,10 @@ public class MainFrame extends JFrame implements ActionListener {
         }
     }
 
+    public void triggerRender() {
+        panelMandelbrot.triggerRender();
+    }
+
     public void updatePreviewRect(ComplexNumber center, double width, double height) {
         if (currentImageFrame != null) {
             currentImageFrame.updatePreviewRect(center, width, height);

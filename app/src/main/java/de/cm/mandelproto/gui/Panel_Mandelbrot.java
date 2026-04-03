@@ -12,12 +12,12 @@ public class Panel_Mandelbrot extends JPanel{
     private final int screenWidth;
     private final int screenHeight;
 
-    private DoubleTextField dtf_centerReal;
-    private DoubleTextField dtf_centerImag;
-    private DoubleTextField dtf_width;
-    private DoubleTextField dtf_height;
-    private IntTextField itf_pixelWidth;
-    private IntTextField itf_pixelHeight;
+    private DoubleTextField tf_centerReal;
+    private DoubleTextField tf_centerImag;
+    private DoubleTextField tf_complexWidth;
+    private DoubleTextField tf_complexHeight;
+    private IntTextField tf_pixelWidth;
+    private IntTextField tf_pixelHeight;
 
     public Panel_Mandelbrot(MainFrame frame){
         super(new BorderLayout());
@@ -32,84 +32,84 @@ public class Panel_Mandelbrot extends JPanel{
 
        add(new JLabel("Go!", JLabel.CENTER), BorderLayout.CENTER);
 
-        JPanel centerPanel = new JPanel(new GridLayout(0,2));
-        dtf_centerReal  = new DoubleTextField("Center Real");
-        dtf_centerImag  = new DoubleTextField("Center Imag");
-        dtf_width       = new DoubleTextField("Width");
-        dtf_height      = new DoubleTextField("Height");
-        itf_pixelWidth  = new IntTextField("Width [px]");
-        itf_pixelWidth.setInt(1280);
-        itf_pixelHeight = new IntTextField("Height [px]");
-        itf_pixelHeight.setReadOnly(true);
+        JPanel inputPanel = new JPanel(new GridLayout(0,2));
+        tf_centerReal   = new DoubleTextField("Center Real");
+        tf_centerImag   = new DoubleTextField("Center Imag");
+        tf_complexWidth = new DoubleTextField("Width");
+        tf_complexHeight= new DoubleTextField("Height");
+        tf_pixelWidth   = new IntTextField("Width [px]");
+        tf_pixelWidth.setInt(1280);
+        tf_pixelHeight  = new IntTextField("Height [px]");
+        tf_pixelHeight.setReadOnly(true);
 
-        centerPanel.add(dtf_centerReal);
-        centerPanel.add(dtf_centerImag);
-        centerPanel.add(dtf_width);
-        centerPanel.add(dtf_height);
-        centerPanel.add(itf_pixelWidth);
-        centerPanel.add(itf_pixelHeight);
+        inputPanel.add(tf_centerReal);
+        inputPanel.add(tf_centerImag);
+        inputPanel.add(tf_complexWidth);
+        inputPanel.add(tf_complexHeight);
+        inputPanel.add(tf_pixelWidth);
+        inputPanel.add(tf_pixelHeight);
 
         Runnable onFieldChanged = () -> {
             try {
                 updatePixelDimensions();
                 mainFrame.updatePreviewRect(
-                        new ComplexNumber(dtf_centerReal.getDouble(), dtf_centerImag.getDouble()),
-                        dtf_width.getDouble(),
-                        dtf_height.getDouble()
+                        new ComplexNumber(tf_centerReal.getDouble(), tf_centerImag.getDouble()),
+                        tf_complexWidth.getDouble(),
+                        tf_complexHeight.getDouble()
                 );
             } catch (NumberFormatException ignored) {}
         };
-        dtf_centerReal.addFocusLostListener(onFieldChanged);
-        dtf_centerImag.addFocusLostListener(onFieldChanged);
-        dtf_width.addFocusLostListener(onFieldChanged);
-        dtf_height.addFocusLostListener(onFieldChanged);
-        itf_pixelWidth.addFocusLostListener(onFieldChanged);
+        tf_centerReal.addFocusLostListener(onFieldChanged);
+        tf_centerImag.addFocusLostListener(onFieldChanged);
+        tf_complexWidth.addFocusLostListener(onFieldChanged);
+        tf_complexHeight.addFocusLostListener(onFieldChanged);
+        tf_pixelWidth.addFocusLostListener(onFieldChanged);
 
-        add(centerPanel);
-        JPanel panel1 = new JPanel();
-        panel1.setLayout(new FlowLayout());
-
-        JButton okButton = getOkButton();
-
-        panel1.add(okButton);
-        add(panel1, BorderLayout.SOUTH);
-
+        add(inputPanel);
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.add(getBtn_ok());
+        add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private JButton getOkButton() {
-        JButton okButton = new JButton("Ok");
-        okButton.addActionListener(event -> {
-            MandelbrotPointMap mandelbrotPointMap =
-                    new MandelbrotPointMap(
-                            new ComplexNumber(dtf_centerReal.getDouble(), dtf_centerImag.getDouble()),
-                            dtf_width.getDouble(),
-                            dtf_height.getDouble(),
-                            itf_pixelWidth.getInt(),
-                            250
-                    );
-            mainFrame.createMandelBrotImage(mandelbrotPointMap);
-        });
-        return okButton;
+    public void triggerRender() {
+        MandelbrotPointMap mandelbrotPointMap =
+                new MandelbrotPointMap(
+                        new ComplexNumber(tf_centerReal.getDouble(), tf_centerImag.getDouble()),
+                        tf_complexWidth.getDouble(),
+                        tf_complexHeight.getDouble(),
+                        tf_pixelWidth.getInt(),
+                        250
+                );
+        mainFrame.createMandelBrotImage(mandelbrotPointMap);
     }
 
-    public void init(ComplexNumber center, double width, double height) {
-        dtf_centerReal.setDouble(center.getReal());
-        dtf_centerImag.setDouble(center.getImag());
-        dtf_width.setDouble(width);
-        dtf_height.setDouble(height);
+    private JButton getBtn_ok() {
+        JButton btn_ok = new JButton("Ok");
+        btn_ok.addActionListener(event -> triggerRender());
+        return btn_ok;
+    }
+
+    public void init(ComplexNumber center, double complexWidth, double complexHeight) {
+        tf_centerReal.setDouble(center.getReal());
+        tf_centerImag.setDouble(center.getImag());
+        tf_complexWidth.setDouble(complexWidth);
+        tf_complexHeight.setDouble(complexHeight);
         updatePixelDimensions();
     }
 
     private void updatePixelDimensions() {
-        double w  = dtf_width.getDouble();
-        double h  = dtf_height.getDouble();
-        int pw    = Math.min(itf_pixelWidth.getInt(), screenWidth);
-        int ph    = (int) ((h / w) * pw);
-        if (ph > screenHeight) {
-            ph = screenHeight;
-            pw = (int) ((w / h) * ph);
+        double complexWidth  = tf_complexWidth.getDouble();
+        double complexHeight = tf_complexHeight.getDouble();
+        if (complexWidth <= 0 || complexHeight <= 0) return;
+        int pixelWidth = tf_pixelWidth.getInt();
+        if (pixelWidth <= 0) pixelWidth = 1280;
+        pixelWidth = Math.min(pixelWidth, screenWidth);
+        int pixelHeight = (int) ((complexHeight / complexWidth) * pixelWidth);
+        if (pixelHeight > screenHeight) {
+            pixelHeight = screenHeight;
+            pixelWidth  = (int) ((complexWidth / complexHeight) * pixelHeight);
         }
-        itf_pixelWidth.setInt(pw);
-        itf_pixelHeight.setInt(ph);
+        tf_pixelWidth.setInt(pixelWidth);
+        tf_pixelHeight.setInt(pixelHeight);
     }
 }
