@@ -5,9 +5,11 @@ package de.cm.mandelproto;
 
 import de.cm.mandelproto.gui.MainFrame;
 
+import javax.swing.*;
+
 public class App {
 
     public static void main(String[] args) {
-        new MainFrame();
+        SwingUtilities.invokeLater(MainFrame::new);
     }
 }

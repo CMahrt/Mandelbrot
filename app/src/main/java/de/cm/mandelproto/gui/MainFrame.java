@@ -41,7 +41,7 @@ public class MainFrame extends JFrame implements ActionListener {
         super();
         createMenu();
         setSize(480, 240);
-        setAlwaysOnTop(true);
+        //setAlwaysOnTop(true);
         panelMandelbrot = new Panel_Mandelbrot(this);
         getContentPane().add(panelMandelbrot);
         I18n.addListener(this::applyTexts);
@@ -110,11 +110,21 @@ public class MainFrame extends JFrame implements ActionListener {
     }
 
     public void createMandelBrotImage(MandelbrotPointMap mandelbrotPointMap) {
-        new Thread(() -> {
-            log.debug("new Thread : Thread {}", Thread.currentThread().getName());
-            currentImageFrame = new ImageFrame(mandelbrotPointMap, this, panelMandelbrot.getPalette());
-            currentImageFrame.draw();
-        }).start();
+        currentImageFrame = new ImageFrame(mandelbrotPointMap, this, panelMandelbrot.getPalette());
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                long t = System.currentTimeMillis();
+                mandelbrotPointMap.tileIterate();
+                log.info("tileIterate = {} ms", System.currentTimeMillis() - t);
+                return null;
+            }
+            @Override
+            protected void done() {
+                currentImageFrame.drawImage();
+                toFront();
+            }
+        }.execute();
     }
 
     public void initNewMandelbrotMap(ComplexNumber center, double width, double height) {

@@ -61,10 +61,4 @@ public class PixelCanvas extends JComponent {
         repaint();
     }
 
-    public void draw() {
-        long startTime = System.currentTimeMillis();
-        iterationMap.tileIterate();
-        drawImage();
-        log.info("time to compute = {} ms", System.currentTimeMillis() - startTime);
-    }
 }

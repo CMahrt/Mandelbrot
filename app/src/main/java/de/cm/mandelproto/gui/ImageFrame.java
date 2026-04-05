@@ -71,10 +71,8 @@ public class ImageFrame extends JFrame implements MouseListener {
         log.debug("created ImageFrame");
     }
 
-    public void draw() {
-        pixelCanvas.draw();
-        pixelCanvas.requestFocusInWindow();
-        log.debug("drawed pixelCanvas");
+    public void drawImage() {
+        pixelCanvas.drawImage();
     }
 
     public void updatePreviewRect(ComplexNumber previewCenter, double previewWidth, double previewHeight) {
@@ -102,7 +100,7 @@ public class ImageFrame extends JFrame implements MouseListener {
         double complexWidth  = draftRect.width  * complexPerPixel;
         double complexHeight = draftRect.height * complexPerPixel;
 
-        mainFrame.initNewMandelbrotMap(new ComplexNumber(centerReal, centerImag), complexWidth, complexHeight);
+         mainFrame.initNewMandelbrotMap(new ComplexNumber(centerReal, centerImag), complexWidth, complexHeight);
     }
 
     private void confirmSelection() {

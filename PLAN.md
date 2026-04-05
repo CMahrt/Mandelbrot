@@ -122,12 +122,8 @@ Ablösung von `Panel_Mandelbrot` durch ein neues, klar getrenntes UI-Modell:
 ## Performance
 
 ### Swing-Threading-Architektur (bekanntes Problem)
-- [ ] **Berechnung und Rendering trennen** — `PixelCanvas.draw()` mischt aktuell beides in einem Background-Thread:
-  - `tileIterate()` = schwere Berechnung → gehört in den Background-Thread
-  - `drawImage()` + `setVisible()` = UI-Operationen → müssen auf dem EDT laufen
-  - Aktuell: `ImageFrame` und `setVisible()` werden vom Background-Thread aufgerufen (Swing-Verletzung)
-  - Saubere Lösung: Background-Thread nur für `tileIterate()`, danach `SwingUtilities.invokeLater` für Rendering
-- [ ] **App-Start auf EDT** — `App.main()` sollte `SwingUtilities.invokeLater(MainFrame::new)` verwenden (Swing-Standard)
+- [v] **Berechnung und Rendering trennen** — `tileIterate()` im SwingWorker-Hintergrund; `ImageFrame` + `drawImage()` auf dem EDT
+- [v] **App-Start auf EDT** — `App.main()` verwendet `SwingUtilities.invokeLater(MainFrame::new)`
 
 ### Weitere Performance-Features
 - [ ] **Progressives Rendering** (grob → fein) — erst mit niedriger Auflösung rechnen, schrittweise verfeinern; User sieht sofort ein Bild
