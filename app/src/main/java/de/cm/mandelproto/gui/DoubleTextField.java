@@ -8,11 +8,12 @@ import java.awt.event.FocusEvent;
 public class DoubleTextField extends JPanel {
 
     private final JTextField textField;
+    private final JLabel label1;
 
     public DoubleTextField(String label) {
         super();
         JPanel panel = new JPanel(new GridLayout(0, 2));
-        JLabel label1 = new JLabel(label + " : ");
+        label1 = new JLabel(label + " : ");
         label1.setHorizontalAlignment(JLabel.CENTER);
         this.textField = new JTextField();
         this.textField.setHorizontalAlignment(JTextField.CENTER);
@@ -27,6 +28,10 @@ public class DoubleTextField extends JPanel {
 
     public void setDouble(double value) {
         textField.setText(Double.toString(value));
+    }
+
+    public void setLabel(String text) {
+        label1.setText(text + " : ");
     }
 
     public void addFocusLostListener(Runnable callback) {

@@ -81,11 +81,25 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
   - Desktop: optional als Alternative zu Tastatur
   - Android: einzige Steuerungsmöglichkeit (kein Keyboard)
 
-### Aktives Bild-Fenster
-- [ ] `MainFrame` kennt aktuell nur das zuletzt erstellte `ImageFrame` (`currentImageFrame`)
-- [ ] Steuerung (Palette, künftig Iterationstiefe etc.) wirkt immer auf dieses — nicht auf das vom User fokussierte Fenster
-- [ ] Lösung A: `ImageFrame` meldet sich beim Fokus-Gewinn bei `MainFrame` als aktiv (`setActiveImageFrame()`)
-- [ ] Lösung B: Beim neuen Render das alte Fenster schließen — immer nur ein Bild-Fenster offen
+### UI-Architektur: Inspector-Konzept (geplantes Refactoring)
+
+Ablösung von `Panel_Mandelbrot` durch ein neues, klar getrenntes UI-Modell:
+
+**`MainFrame` — Fenster-Manager**
+- [ ] Hält Liste aller offenen `ImageFrame`s (statt nur `currentImageFrame`)
+- [ ] Menü zum direkten Springen/Fokussieren eines bestimmten Frames
+
+**Inspector-Fenster — 1:1 pro `ImageFrame`**
+- [ ] Zeigt Parameter des zugehörigen Bildes read-only: Mittelpunkt, Zoomfaktor, Pixelgröße
+- [ ] Palette-ComboBox und Running-Colors-Steuerung (wirken live auf dieses Bild)
+- [ ] Name/Label für diesen Frame vergeben
+- [ ] Button "Create New" — versetzt das zugehörige `ImageFrame` in den Auswahlmodus
+
+**Create-New-Workflow (modal)**
+- [ ] "Create New" öffnet Typ-Dialog: Mandelbrot-Ausschnitt, Julia-Menge, ...
+- [ ] Je nach Typ wird das `ImageFrame` interaktiv: Rechteck aufziehen (Mandelbrot) oder Punkt anklicken (Julia)
+- [ ] Danach: Parameter-Dialog für Auflösung, Iterationen (vorausgefüllt aus Selektion)
+- [ ] Ergebnis: neues `ImageFrame` + eigener Inspector
 
 ---
 
@@ -107,6 +121,15 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 
 ## Performance
 
+### Swing-Threading-Architektur (bekanntes Problem)
+- [ ] **Berechnung und Rendering trennen** — `PixelCanvas.draw()` mischt aktuell beides in einem Background-Thread:
+  - `tileIterate()` = schwere Berechnung → gehört in den Background-Thread
+  - `drawImage()` + `setVisible()` = UI-Operationen → müssen auf dem EDT laufen
+  - Aktuell: `ImageFrame` und `setVisible()` werden vom Background-Thread aufgerufen (Swing-Verletzung)
+  - Saubere Lösung: Background-Thread nur für `tileIterate()`, danach `SwingUtilities.invokeLater` für Rendering
+- [ ] **App-Start auf EDT** — `App.main()` sollte `SwingUtilities.invokeLater(MainFrame::new)` verwenden (Swing-Standard)
+
+### Weitere Performance-Features
 - [ ] **Progressives Rendering** (grob → fein) — erst mit niedriger Auflösung rechnen, schrittweise verfeinern; User sieht sofort ein Bild
 - [ ] **Multithreading** — Bildbereich auf mehrere CPU-Kerne aufteilen (ForkJoinPool o.ä.)
 - [ ] **Abbruch laufender Berechnung** — wenn User Ausschnitt wechselt, alte Berechnung stoppen
@@ -163,4 +186,9 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 ---
 
 ## Sonstiges
-<!-- TODO -->
+
+### Internationalisierung (i18n)
+- [v] Alle UI-Texte (Menüeinträge, Labels, Buttons, Dialoge) über `ResourceBundle` externalisieren
+- [v] Sprachdateien als `.properties`-Dateien (`uiStrings.properties`, `uiStrings_de.properties`)
+- [v] Sprache einstellbar (Settings-Menü; Systemsprache als Default)
+- [v] Von Anfang an konsequent — keine hartcodierten Strings in Swing-Komponenten

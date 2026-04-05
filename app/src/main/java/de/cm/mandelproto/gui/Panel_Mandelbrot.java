@@ -1,5 +1,6 @@
 package de.cm.mandelproto.gui;
 
+import de.cm.mandelproto.I18n;
 import de.cm.mandelproto.graphics.Palette;
 import de.cm.mandelproto.graphics.PaletteLibrary;
 import de.cm.mandelproto.math.ComplexNumber;
@@ -26,6 +27,10 @@ public class Panel_Mandelbrot extends JPanel {
     private IntTextField tf_maxIterations;
     private JComboBox<String> cb_palette;
 
+    private JLabel lbl_title;
+    private JLabel lbl_palette;
+    private JButton btn_ok;
+
     public Panel_Mandelbrot(MainFrame frame) {
         super(new BorderLayout());
         this.mainFrame = frame;
@@ -33,27 +38,29 @@ public class Panel_Mandelbrot extends JPanel {
         this.screenWidth  = screen.width;
         this.screenHeight = screen.height;
         createDialog();
+        applyTexts();
+        I18n.addListener(this::applyTexts);
     }
 
     private void createDialog() {
-
-        add(new JLabel("Go!", JLabel.CENTER), BorderLayout.CENTER);
+        lbl_title = new JLabel("", JLabel.CENTER);
+        add(lbl_title, BorderLayout.CENTER);
 
         JPanel inputPanel = new JPanel(new GridLayout(0, 2));
-        tf_centerReal   = new DoubleTextField("Center Real");
-        tf_centerImag   = new DoubleTextField("Center Imag");
-        tf_complexWidth = new DoubleTextField("Width");
-        tf_complexHeight= new DoubleTextField("Height");
-        tf_pixelWidth   = new IntTextField("Width [px]");
+        tf_centerReal   = new DoubleTextField("");
+        tf_centerImag   = new DoubleTextField("");
+        tf_complexWidth = new DoubleTextField("");
+        tf_complexHeight= new DoubleTextField("");
+        tf_pixelWidth   = new IntTextField("");
         tf_pixelWidth.setInt(1280);
-        tf_pixelHeight  = new IntTextField("Height [px]");
+        tf_pixelHeight  = new IntTextField("");
         tf_pixelHeight.setReadOnly(true);
 
         inputPanel.add(tf_centerReal);
         inputPanel.add(tf_centerImag);
         inputPanel.add(tf_complexWidth);
         inputPanel.add(tf_complexHeight);
-        tf_maxIterations = new IntTextField("Max. Iterationen");
+        tf_maxIterations = new IntTextField("");
         tf_maxIterations.setInt(150);
 
         cb_palette = new JComboBox<>(PaletteLibrary.NAMES);
@@ -62,7 +69,8 @@ public class Panel_Mandelbrot extends JPanel {
         inputPanel.add(tf_pixelHeight);
         inputPanel.add(tf_maxIterations);
         inputPanel.add(new JLabel(""));
-        inputPanel.add(new JLabel("Palette"));
+        lbl_palette = new JLabel("");
+        inputPanel.add(lbl_palette);
         inputPanel.add(cb_palette);
 
         Runnable onFieldChanged = () -> {
@@ -83,8 +91,23 @@ public class Panel_Mandelbrot extends JPanel {
 
         add(inputPanel);
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        buttonPanel.add(getBtn_ok());
+        btn_ok = new JButton("");
+        btn_ok.addActionListener(event -> triggerRender());
+        buttonPanel.add(btn_ok);
         add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private void applyTexts() {
+        lbl_title.setText(I18n.get("panel.title"));
+        tf_centerReal.setLabel(I18n.get("field.centerReal"));
+        tf_centerImag.setLabel(I18n.get("field.centerImag"));
+        tf_complexWidth.setLabel(I18n.get("field.complexWidth"));
+        tf_complexHeight.setLabel(I18n.get("field.complexHeight"));
+        tf_pixelWidth.setLabel(I18n.get("field.pixelWidth"));
+        tf_pixelHeight.setLabel(I18n.get("field.pixelHeight"));
+        tf_maxIterations.setLabel(I18n.get("field.maxIterations"));
+        lbl_palette.setText(I18n.get("field.palette"));
+        btn_ok.setText(I18n.get("button.ok"));
     }
 
     public void triggerRender() {
@@ -97,12 +120,6 @@ public class Panel_Mandelbrot extends JPanel {
                         tf_maxIterations.getInt()
                 );
         mainFrame.createMandelBrotImage(mandelbrotPointMap);
-    }
-
-    private JButton getBtn_ok() {
-        JButton btn_ok = new JButton("Ok");
-        btn_ok.addActionListener(event -> triggerRender());
-        return btn_ok;
     }
 
     public void init(ComplexNumber center, double complexWidth, double complexHeight) {

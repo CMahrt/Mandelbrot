@@ -1,9 +1,12 @@
 package de.cm.mandelproto.gui;
 
+import de.cm.mandelproto.I18n;
 import de.cm.mandelproto.graphics.Palette;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class RunningColorsFrame extends JFrame {
 
@@ -13,14 +16,24 @@ public class RunningColorsFrame extends JFrame {
     private final JSlider sl_green;
     private final JSlider sl_blue;
 
+    private final JLabel lbl_active;
+    private final JLabel lbl_speed;
+    private final JLabel lbl_red;
+    private final JLabel lbl_green;
+    private final JLabel lbl_blue;
+    private final JLabel lbl_direction;
+    private final JRadioButton rb_forward;
+    private final JRadioButton rb_backward;
+
+    private final Runnable langListener = this::applyTexts;
+
     public RunningColorsFrame(Palette palette) {
-        super("Running Colors");
+        super();
 
         JPanel panel = new JPanel(new GridLayout(6, 2, 8, 8));
         panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        // Zeile 1: Aktiv-Checkbox
-        panel.add(new JLabel("Aktiv"));
+        lbl_active = new JLabel();
         cb_active = new JCheckBox();
         cb_active.addActionListener(e -> {
             if (cb_active.isSelected()) {
@@ -29,60 +42,82 @@ public class RunningColorsFrame extends JFrame {
                 palette.stopCycling();
             }
         });
+        panel.add(lbl_active);
         panel.add(cb_active);
 
-        // Zeile 2: Geschwindigkeit (50–500ms, invertiert: links = schnell)
-        panel.add(new JLabel("Geschwindigkeit"));
+        lbl_speed = new JLabel();
         sl_speed = new JSlider(50, 500, 100);
         sl_speed.addChangeListener(e -> {
             if (!sl_speed.getValueIsAdjusting()) palette.setInterval(getInterval());
         });
+        panel.add(lbl_speed);
         panel.add(sl_speed);
 
-        // Zeilen 3–5: Abweichung pro Kanal (quadratisch gemappt)
-        panel.add(new JLabel("Abweichung Rot"));
+        lbl_red = new JLabel();
         sl_red = new JSlider(0, 255, 80);
         sl_red.addChangeListener(e -> {
             if (!sl_red.getValueIsAdjusting()) palette.setDeviationR(mapDeviation(sl_red));
         });
+        panel.add(lbl_red);
         panel.add(sl_red);
 
-        panel.add(new JLabel("Abweichung Grün"));
+        lbl_green = new JLabel();
         sl_green = new JSlider(0, 255, 80);
         sl_green.addChangeListener(e -> {
             if (!sl_green.getValueIsAdjusting()) palette.setDeviationG(mapDeviation(sl_green));
         });
+        panel.add(lbl_green);
         panel.add(sl_green);
 
-        panel.add(new JLabel("Abweichung Blau"));
+        lbl_blue = new JLabel();
         sl_blue = new JSlider(0, 255, 80);
         sl_blue.addChangeListener(e -> {
-        if (!sl_blue.getValueIsAdjusting()) palette.setDeviationB(mapDeviation(sl_blue));
+            if (!sl_blue.getValueIsAdjusting()) palette.setDeviationB(mapDeviation(sl_blue));
         });
+        panel.add(lbl_blue);
         panel.add(sl_blue);
 
-        // Zeile 6: Richtung
-        panel.add(new JLabel("Richtung"));
-        panel.add(createDirectionPanel(palette));
-
-        add(panel);
-        pack();
-        setResizable(false);
-        setAlwaysOnTop(true);
-    }
-
-    private JPanel createDirectionPanel(Palette palette) {
-        JPanel dirPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        JRadioButton rb_forward  = new JRadioButton("innen → außen", true);
-        JRadioButton rb_backward = new JRadioButton("außen → innen");
+        lbl_direction = new JLabel();
+        rb_forward  = new JRadioButton("", true);
+        rb_backward = new JRadioButton("");
         ButtonGroup dirGroup = new ButtonGroup();
         dirGroup.add(rb_forward);
         dirGroup.add(rb_backward);
         rb_forward.addActionListener(e  -> palette.setForward(true));
         rb_backward.addActionListener(e -> palette.setForward(false));
+        JPanel dirPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         dirPanel.add(rb_forward);
         dirPanel.add(rb_backward);
-        return dirPanel;
+        panel.add(lbl_direction);
+        panel.add(dirPanel);
+
+        applyTexts();
+        I18n.addListener(langListener);
+
+        add(panel);
+        pack();
+        setResizable(false);
+        setAlwaysOnTop(true);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                palette.stopCycling();
+                I18n.removeListener(langListener);
+            }
+        });
+    }
+
+    private void applyTexts() {
+        setTitle(I18n.get("frame.runningColors"));
+        lbl_active.setText(I18n.get("label.active"));
+        lbl_speed.setText(I18n.get("label.speed"));
+        lbl_red.setText(I18n.get("label.deviationRed"));
+        lbl_green.setText(I18n.get("label.deviationGreen"));
+        lbl_blue.setText(I18n.get("label.deviationBlue"));
+        lbl_direction.setText(I18n.get("label.direction"));
+        rb_forward.setText(I18n.get("direction.inward"));
+        rb_backward.setText(I18n.get("direction.outward"));
     }
 
     /** Slider-Wert invertiert: kleiner Wert = schnell (kleines Intervall). */
