@@ -38,6 +38,10 @@ public class IntTextField extends JPanel {
         textField.setEditable(!readOnly);
     }
 
+    public void setFieldFocusable(boolean focusable) {
+        textField.setFocusable(focusable);
+    }
+
     public void addFocusLostListener(Runnable callback) {
         textField.addFocusListener(new FocusAdapter() {
             @Override

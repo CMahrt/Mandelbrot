@@ -1,30 +1,31 @@
 package de.cm.mandelproto.math;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class IterationMap {
 
-    protected ComplexNumber center;
-    protected double width;
-    protected double height;
+    @Getter protected ComplexNumber center;
+    @Getter protected double width;
+    @Getter protected double height;
 
-    protected int stepOnWidth;
-    protected int stepOnHeight;
+    @Getter protected int cols;
+    @Getter protected int rows;
     protected int maxIterations;
 
     protected Iterable[][] points;
 
     private int iterations;
 
-    protected IterationMap(ComplexNumber center, double width, double height, int stepOnWidth, int maxIterations) {
-        this.center = center;
-        this.width = width;
-        this.height = height;
-        this.stepOnWidth = stepOnWidth;
-        this.stepOnHeight = (int) ((height/width) * stepOnWidth);
-        this.maxIterations = maxIterations;
-        points = new Iterable[stepOnWidth][stepOnHeight];
+    protected IterationMap(RenderParameters params) {
+        this.center = params.center();
+        this.width = params.complexWidth();
+        this.height = params.complexHeight();
+        this.cols = params.pixelWidth();
+        this.rows = params.pixelHeight();
+        this.maxIterations = params.maxIterations();
+        points = new Iterable[cols][rows];
         iterations = 0;
         init();
     }
@@ -33,8 +34,8 @@ public abstract class IterationMap {
         boolean result = false;
         if (iterations < maxIterations) {
             iterations++;
-            for (int i = 0; i < stepOnWidth; i++)
-                for (int j = 0; j < stepOnHeight; j++) {
+            for (int i = 0; i < cols; i++)
+                for (int j = 0; j < rows; j++) {
                     result |= points[i][j].iterate();
                 }
         }
@@ -42,7 +43,7 @@ public abstract class IterationMap {
     }
 
     public void tileIterate() {
-        tileIterate(0, 0, stepOnWidth, stepOnHeight);
+        tileIterate(0, 0, cols, rows);
     }
 
     private void tileIterate(int left, int top, int right, int bottom) {
@@ -85,29 +86,9 @@ public abstract class IterationMap {
     public abstract void init();
 
     public int getIterationForCoordinate(int x, int y) {
-        if (x >= stepOnWidth || y >= stepOnHeight) return 0;
+        if (x >= cols || y >= rows) return 0;
         return points[x][y].getIteration();
     }
 
     abstract public ComplexNumber getComplexNumberForCoordinate(int x, int y);
-
-    public int getStepOnWidth() {
-        return stepOnWidth;
-    }
-
-    public int getStepOnHeight() {
-        return stepOnHeight;
-    }
-
-    public ComplexNumber getCenter() {
-        return center;
-    }
-
-    public double getWidth() {
-        return width;
-    }
-
-    public double getHeight() {
-        return height;
-    }
 }

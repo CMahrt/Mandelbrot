@@ -86,20 +86,19 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 Ablösung von `Panel_Mandelbrot` durch ein neues, klar getrenntes UI-Modell:
 
 **`MainFrame` — Fenster-Manager**
-- [ ] Hält Liste aller offenen `ImageFrame`s (statt nur `currentImageFrame`)
-- [ ] Menü zum direkten Springen/Fokussieren eines bestimmten Frames
+- [v] Hält Liste aller offenen `ImageFrame`s (statt nur `currentImageFrame`)
+- [v] Menü zum direkten Springen/Fokussieren eines bestimmten Frames
 
 **Inspector-Fenster — 1:1 pro `ImageFrame`**
-- [ ] Zeigt Parameter des zugehörigen Bildes read-only: Mittelpunkt, Zoomfaktor, Pixelgröße
-- [ ] Palette-ComboBox und Running-Colors-Steuerung (wirken live auf dieses Bild)
+- [v] Zeigt Parameter des zugehörigen Bildes read-only: Mittelpunkt, Zoomfaktor, Pixelgröße
+- [v] Palette-ComboBox und Running-Colors-Steuerung (wirken live auf dieses Bild)
 - [ ] Name/Label für diesen Frame vergeben
-- [ ] Button "Create New" — versetzt das zugehörige `ImageFrame` in den Auswahlmodus
+- [v] Button "Neuen Ausschnitt wählen" — versetzt das zugehörige `ImageFrame` in den Auswahlmodus
 
 **Create-New-Workflow (modal)**
 - [ ] "Create New" öffnet Typ-Dialog: Mandelbrot-Ausschnitt, Julia-Menge, ...
-- [ ] Je nach Typ wird das `ImageFrame` interaktiv: Rechteck aufziehen (Mandelbrot) oder Punkt anklicken (Julia)
-- [ ] Danach: Parameter-Dialog für Auflösung, Iterationen (vorausgefüllt aus Selektion)
-- [ ] Ergebnis: neues `ImageFrame` + eigener Inspector
+- [v] Rechteck aufziehen → Parameter-Dialog für Auflösung, Iterationen (vorausgefüllt aus Selektion)
+- [v] Ergebnis: neues `ImageFrame` + eigener Inspector
 
 ---
 

@@ -1,146 +1,115 @@
 package de.cm.mandelproto.gui;
 
 import de.cm.mandelproto.I18n;
+import de.cm.mandelproto.graphics.Palette;
+import de.cm.mandelproto.graphics.PaletteLibrary;
 import de.cm.mandelproto.math.ComplexNumber;
 import de.cm.mandelproto.math.MandelbrotPointMap;
+import de.cm.mandelproto.math.RenderParameters;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 @Slf4j
-public class MainFrame extends JFrame implements ActionListener {
+public class MainFrame extends JFrame {
 
-    public static final String CREATE_MANDELBROT_TREE = "Create Mandelbrot Tree";
+    private final List<ImageFrame> imageFrames = new ArrayList<>();
 
-    private ImageFrame currentImageFrame;
-    private RunningColorsFrame runningColorsFrame;
-
-    private final Panel_Mandelbrot panelMandelbrot;
-
-    private JMenu menuCreate;
-    private JMenuItem itemCreateMandelbrot;
-    private JMenu menuView;
-    private JMenuItem itemRunningColors;
+    private JMenu menuWindows;
     private JMenu menuSettings;
     private JRadioButtonMenuItem itemLangDe;
     private JRadioButtonMenuItem itemLangEn;
 
-    public final static MandelbrotPointMap STARTINGMAP =
-            new MandelbrotPointMap(
-                    new ComplexNumber(-.5d, 0d),
-                    3.84d,
-                    2.16d,
-                    1280,
-                    250
-            );
+    public static final RenderParameters STARTING_PARAMS = new RenderParameters(
+            new ComplexNumber(-.5d, 0d), 3.84d, 2.16d, 1280, 250);
 
     public MainFrame() {
         super();
         createMenu();
-        setSize(480, 240);
-        //setAlwaysOnTop(true);
-        panelMandelbrot = new Panel_Mandelbrot(this);
-        getContentPane().add(panelMandelbrot);
-        I18n.addListener(this::applyTexts);
+        pack();
         setVisible(true);
-        createMandelBrotImage(STARTINGMAP);
+        createImageFramePair(STARTING_PARAMS);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     private void createMenu() {
         JMenuBar menuBar = new JMenuBar();
-        menuBar.setVisible(true);
 
-        menuCreate = new JMenu();
-        menuBar.add(menuCreate);
-
-        itemCreateMandelbrot = new JMenuItem();
-        itemCreateMandelbrot.setActionCommand(CREATE_MANDELBROT_TREE);
-        itemCreateMandelbrot.addActionListener(this);
-        menuCreate.add(itemCreateMandelbrot);
-
-        menuView = new JMenu();
-        menuBar.add(menuView);
-
-        itemRunningColors = new JMenuItem();
-        itemRunningColors.addActionListener(e -> {
-            if (runningColorsFrame == null || !runningColorsFrame.isDisplayable()) {
-                runningColorsFrame = new RunningColorsFrame(panelMandelbrot.getPalette());
-            }
-            runningColorsFrame.setVisible(true);
-        });
-        menuView.add(itemRunningColors);
+        menuWindows = new JMenu();
+        menuBar.add(menuWindows);
 
         menuSettings = new JMenu();
-        menuBar.add(menuSettings);
-
         itemLangDe = new JRadioButtonMenuItem();
         itemLangDe.addActionListener(e -> I18n.setLocale(Locale.GERMAN));
         menuSettings.add(itemLangDe);
-
         itemLangEn = new JRadioButtonMenuItem();
         itemLangEn.addActionListener(e -> I18n.setLocale(Locale.ENGLISH));
         menuSettings.add(itemLangEn);
-
         ButtonGroup langGroup = new ButtonGroup();
         langGroup.add(itemLangDe);
         langGroup.add(itemLangEn);
         itemLangDe.setSelected(true);
+        menuBar.add(menuSettings);
 
+        I18n.addListener(this::applyTexts);
         applyTexts();
         setJMenuBar(menuBar);
     }
 
     private void applyTexts() {
-        menuCreate.setText(I18n.get("menu.create"));
-        itemCreateMandelbrot.setText(I18n.get("menu.create.mandelbrot"));
-        menuView.setText(I18n.get("menu.view"));
-        itemRunningColors.setText(I18n.get("menu.view.runningColors"));
+        menuWindows.setText(I18n.get("menu.windows"));
         menuSettings.setText(I18n.get("menu.settings"));
         itemLangDe.setText(I18n.get("menu.settings.lang.de"));
         itemLangEn.setText(I18n.get("menu.settings.lang.en"));
+        updateWindowsMenu();
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        log.debug("start actionPerformed : Thread {}", Thread.currentThread().getName());
-    }
+    public void createImageFramePair(RenderParameters params) {
+        int number = imageFrames.size() + 1;
+        log.debug("Erstelle ImageFrame-Paar #{}: center={}, complexWidth={}, pixelWidth={}",
+                number, params.center(), params.complexWidth(), params.pixelWidth());
+        Palette palette = new Palette(PaletteLibrary.grayscale());
+        MandelbrotPointMap map = new MandelbrotPointMap(params);
+        ImageFrame imgFrame = new ImageFrame("Mandelbrot " + number, map, this, palette);
+        InspectorFrame inspector = new InspectorFrame(params, palette, imgFrame);
+        imgFrame.setInspector(inspector);
+        imageFrames.add(imgFrame);
+        updateWindowsMenu();
 
-    public void createMandelBrotImage(MandelbrotPointMap mandelbrotPointMap) {
-        currentImageFrame = new ImageFrame(mandelbrotPointMap, this, panelMandelbrot.getPalette());
         new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() {
                 long t = System.currentTimeMillis();
-                mandelbrotPointMap.tileIterate();
+                map.tileIterate();
                 log.info("tileIterate = {} ms", System.currentTimeMillis() - t);
                 return null;
             }
             @Override
             protected void done() {
-                currentImageFrame.drawImage();
+                imgFrame.drawImage();
                 toFront();
             }
         }.execute();
     }
 
-    public void initNewMandelbrotMap(ComplexNumber center, double width, double height) {
-        panelMandelbrot.init(center, width, height);
-        if (currentImageFrame != null) {
-            currentImageFrame.updatePreviewRect(center, width, height);
-        }
+    public void onImageFrameClosing(ImageFrame frame) {
+        log.debug("ImageFrame geschlossen: {}", frame.getTitle());
+        imageFrames.remove(frame);
+        updateWindowsMenu();
     }
 
-    public void triggerRender() {
-        panelMandelbrot.triggerRender();
-    }
-
-    public void updatePreviewRect(ComplexNumber center, double width, double height) {
-        if (currentImageFrame != null) {
-            currentImageFrame.updatePreviewRect(center, width, height);
+    private void updateWindowsMenu() {
+        menuWindows.removeAll();
+        for (ImageFrame frame : imageFrames) {
+            JMenuItem item = new JMenuItem(frame.getTitle());
+            item.addActionListener(e -> {
+                frame.setVisible(true);
+                frame.toFront();
+            });
+            menuWindows.add(item);
         }
     }
 }

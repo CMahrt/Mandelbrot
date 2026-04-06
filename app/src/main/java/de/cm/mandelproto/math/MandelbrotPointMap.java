@@ -8,17 +8,17 @@ public class MandelbrotPointMap extends IterationMap {
     double left ;
     double top ;
 
-    public MandelbrotPointMap(ComplexNumber center, double width, double height, int stepOnWidth, int maxIterations) {
-        super(center, width, height, stepOnWidth, maxIterations);
+    public MandelbrotPointMap(RenderParameters params) {
+        super(params);
     }
 
     @Override
     public void init() {
-        step = width / stepOnWidth;
+        step = width / cols;
         left = center.getReal() - width / 2;
         top = center.getImag() + height / 2;
-        for (int i = 0; i < stepOnWidth; i++)
-            for (int j = 0; j < stepOnHeight; j++) {
+        for (int i = 0; i < cols; i++)
+            for (int j = 0; j < rows; j++) {
                 points[i][j] =
                         new MandelbrotPoint(
                                 new ComplexNumber(
@@ -28,10 +28,10 @@ public class MandelbrotPointMap extends IterationMap {
                         );
             }
 
-        log.debug("stepOnHeight = {}", stepOnHeight);
-        log.debug("stepOnWidth = {}", stepOnWidth);
-        log.debug("top , bottom = {},{}", top, (top - stepOnHeight * step));
-        log.debug("left , right = {},{}", left, (left + stepOnWidth * step));
+        log.debug("rows = {}", rows);
+        log.debug("cols = {}", cols);
+        log.debug("top , bottom = {},{}", top, (top - rows * step));
+        log.debug("left , right = {},{}", left, (left + cols * step));
     }
 
     @Override
