@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.function.Consumer;
 
 @Slf4j
 public class InspectorFrame extends JDialog {
@@ -35,13 +34,7 @@ public class InspectorFrame extends JDialog {
     private JComboBox<Integer> cb_paletteSize;
     private JLabel lbl_curve;
     private JComboBox<PaletteMapper.Curve> cb_curve;
-    private JLabel lbl_active;
-    private JCheckBox cb_active;
-    private JLabel lbl_speed;
-    private JSlider sl_speed;
-    private JLabel lbl_red, lbl_green, lbl_blue;
-    private JLabel lbl_direction;
-    private JRadioButton rb_forward, rb_backward;
+    private JButton btn_openRunningColors;
 
     // Action
     private JButton btn_newSelection;
@@ -60,7 +53,7 @@ public class InspectorFrame extends JDialog {
         setVisible(true);
     }
 
-    // ── UI-Aufbau (Orchestratoren) ────────────────────────────────────────────
+    // ── UI-Aufbau ────────────────────────────────────────────────────────────
 
     private void buildUI() {
         JPanel main = new JPanel();
@@ -103,44 +96,11 @@ public class InspectorFrame extends JDialog {
 
     private JPanel buildColorPanel() {
         JPanel p = new JPanel(new GridLayout(0, 2, 8, 4));
-        addPaletteControls(p);
-        addCyclingControls(p);
-        addDeviationControls(p);
-        addDirectionControls(p);
-        return p;
-    }
-
-    private void addPaletteControls(JPanel p) {
         addPaletteChooser(p);
         addPaletteSizeChooser(p);
         addCurveChooser(p);
-    }
-
-    private void addCyclingControls(JPanel p) {
-        addActiveCheckbox(p);
-        addSpeedSlider(p);
-    }
-
-    private void addDeviationControls(JPanel p) {
-        lbl_red   = new JLabel(); addDeviationSlider(p, lbl_red,   palette::setDeviationR);
-        lbl_green = new JLabel(); addDeviationSlider(p, lbl_green, palette::setDeviationG);
-        lbl_blue  = new JLabel(); addDeviationSlider(p, lbl_blue,  palette::setDeviationB);
-    }
-
-    private void addDirectionControls(JPanel p) {
-        lbl_direction = new JLabel();
-        rb_forward  = new JRadioButton("", true);
-        rb_backward = new JRadioButton("");
-        ButtonGroup dirGroup = new ButtonGroup();
-        dirGroup.add(rb_forward);
-        dirGroup.add(rb_backward);
-        rb_forward.addActionListener(e  -> palette.setForward(true));
-        rb_backward.addActionListener(e -> palette.setForward(false));
-        JPanel dirPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        dirPanel.add(rb_forward);
-        dirPanel.add(rb_backward);
-        p.add(lbl_direction);
-        p.add(dirPanel);
+        addRunningColorsButton(p);
+        return p;
     }
 
     private JPanel buildActionPanel() {
@@ -191,43 +151,27 @@ public class InspectorFrame extends JDialog {
         p.add(cb_curve);
     }
 
-    private void addActiveCheckbox(JPanel p) {
-        lbl_active = new JLabel();
-        cb_active = new JCheckBox();
-        cb_active.addActionListener(e -> {
-            if (cb_active.isSelected()) {
-                log.debug("Running Colors gestartet: interval={}ms", getInterval());
-                palette.startCycling(getInterval());
-                cb_palette.setEnabled(false);
-                cb_paletteSize.setEnabled(false);
-            } else {
-                log.debug("Running Colors gestoppt");
-                palette.stopCycling();
-                cb_palette.setEnabled(true);
-                cb_paletteSize.setEnabled(true);
-            }
-        });
-        p.add(lbl_active);
-        p.add(cb_active);
+    private void addRunningColorsButton(JPanel p) {
+        btn_openRunningColors = new JButton();
+        btn_openRunningColors.setEnabled(false);
+        btn_openRunningColors.addActionListener(e -> openRunningColorsDialog());
+        p.add(new JLabel());
+        p.add(btn_openRunningColors);
     }
 
-    private void addSpeedSlider(JPanel p) {
-        lbl_speed = new JLabel();
-        sl_speed = new JSlider(50, 500, 100);
-        sl_speed.addChangeListener(e -> {
-            if (!sl_speed.getValueIsAdjusting()) palette.setInterval(getInterval());
-        });
-        p.add(lbl_speed);
-        p.add(sl_speed);
+    // ── Running Colors ───────────────────────────────────────────────────────
+
+    private void openRunningColorsDialog() {
+        new RunningColorsDialog(getOwner(), palette);
+        // modal — setzt hier fort, sobald der Dialog geschlossen wurde
+        updateRunningColorsState();
     }
 
-    private void addDeviationSlider(JPanel p, JLabel label, Consumer<Integer> setter) {
-        JSlider sl = new JSlider(0, 255, 80);
-        sl.addChangeListener(e -> {
-            if (!sl.getValueIsAdjusting()) setter.accept(mapDeviation(sl));
-        });
-        p.add(label);
-        p.add(sl);
+    private void updateRunningColorsState() {
+        boolean cycling = palette.isCycling();
+        cb_palette.setEnabled(!cycling);
+        cb_curve.setEnabled(!cycling);
+        // cb_paletteSize bleibt disabled, solange "Running Colors" in der ComboBox steht
     }
 
     // ── Öffentliche API ──────────────────────────────────────────────────────
@@ -255,14 +199,7 @@ public class InspectorFrame extends JDialog {
         lbl_paletteSize.setText(I18n.get("label.paletteSize"));
         lbl_curve.setText(I18n.get("label.iterationCurve"));
         cb_curve.repaint();
-        lbl_active.setText(I18n.get("label.active"));
-        lbl_speed.setText(I18n.get("label.speed"));
-        lbl_red.setText(I18n.get("label.deviationRed"));
-        lbl_green.setText(I18n.get("label.deviationGreen"));
-        lbl_blue.setText(I18n.get("label.deviationBlue"));
-        lbl_direction.setText(I18n.get("label.direction"));
-        rb_forward.setText(I18n.get("direction.inward"));
-        rb_backward.setText(I18n.get("direction.outward"));
+        btn_openRunningColors.setText(I18n.get("button.configureRunningColors"));
         btn_newSelection.setText(I18n.get("button.newSelection"));
         pack();
     }
@@ -277,20 +214,23 @@ public class InspectorFrame extends JDialog {
     // ── Hilfsmethoden ────────────────────────────────────────────────────────
 
     private void regeneratePalette() {
-        String name   = (String)  cb_palette.getSelectedItem();
-        Integer size  = (Integer) cb_paletteSize.getSelectedItem();
-        if (name != null && size != null) {
+        String name  = (String)  cb_palette.getSelectedItem();
+        Integer size = (Integer) cb_paletteSize.getSelectedItem();
+        if (name == null || size == null) return;
+
+        if ("Running Colors".equals(name)) {
+            log.debug("Running Colors ausgewählt — Dialog öffnet");
+            cb_paletteSize.setEnabled(false);
+            btn_openRunningColors.setEnabled(true);
+            openRunningColorsDialog();
+        } else {
             log.debug("Palette neu generiert: name={}, size={}", name, size);
+            palette.stopCycling();
+            btn_openRunningColors.setEnabled(false);
+            cb_palette.setEnabled(true);
+            cb_paletteSize.setEnabled(true);
+            cb_curve.setEnabled(true);
             palette.loadColors(PaletteLibrary.byName(name, size));
         }
-    }
-
-    private int getInterval() {
-        return 550 - sl_speed.getValue();
-    }
-
-    private int mapDeviation(JSlider sl) {
-        double t = sl.getValue() / 255.0;
-        return (int) Math.round(t * t * 50);
     }
 }

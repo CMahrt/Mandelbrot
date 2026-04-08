@@ -7,14 +7,21 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 ## Farbpaletten & Running Colors
 
 ### Palette-Editor
-- [ ] Variable Palettengröße (4 bis ~512 Einträge)
 - [ ] Farbbalken-Anzeige der gesamten Palette
-- [ ] Einzelnen Eintrag anklicken → Farbe ändern (JColorChooser)
 - [ ] Palettengröße im Editor einstellbar
+- [ ] **Anker-basierte Bearbeitung** — statt alle Einträge einzeln zu setzen, definiert der User einige Ankerfarben an frei wählbaren Positionen; die Zwischenfarben werden automatisch interpoliert (lineare RGB-Interpolation, wie `PaletteLibrary.interpolate()` es bereits intern tut). Anker verschieben, hinzufügen, löschen — Palette aktualisiert sich live.
+- [ ] Einzelnen Eintrag anklicken → Farbe ändern (JColorChooser) — überschreibt lokal ohne die Anker zu verändern
 
 ### Mapping: Iterationen → Palettenindex
 - [v] `iterationCount % palette.length` (statt fester Index)
 - Effekt: kleine Palette → Konturlinien/Ringe; große Palette → weiche Übergänge
+
+### Palette-Größe ändern ohne Reset
+- [ ] Wenn die Palettengröße im Inspector geändert wird, soll die **aktuell aktive** Palette resampled werden — nicht neu aus der Library geladen
+- [ ] Verkleinern: Downsampling — gleichmäßig verteilte Einträge aus der alten Palette übernehmen (jede N-te Farbe)
+- [ ] Vergrößern: Interpolation — Farbwerte zwischen bestehenden Einträgen linear interpolieren (wie `PaletteLibrary.interpolate()`)
+- [ ] Letzter Eintrag (Innen-Farbe, Index `size-1`) bleibt in beiden Fällen schwarz/fest
+- [ ] Auslöser: nur die Size-ComboBox; Palette-ComboBox lädt weiterhin neu aus der Library
 
 ### Palette speichern & laden
 - [ ] Paletten als Dateien speichern/laden (inkl. Größe)
@@ -26,6 +33,9 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 - [v] Parameter `deviation` (0–255): Stärke der Farbabweichung
 - [v] Animationsgeschwindigkeit steuerbar
 - [v] Start/Stop steuerbar
+- [v] **"Running Colors" als Palette-Eintrag** — `PaletteLibrary.NAMES` um einen Eintrag "Running Colors" erweitern; Konfiguration in eigenem modalen Dialog; ComboBox zeigt Herkunft der Palette
+- [v] **Innen-Bereich ausnehmen** — Checkbox im Running-Colors-Dialog: letzter Paletteneintrag (Index `size-1`, reserviert für Innen-Punkte) wird von der Rotation ausgenommen
+- [v] **Deterministischer Bounce-Modus** — jeder RGB-Kanal bewegt sich mit zufälliger Schrittweite in fester Richtung; dreht bei 0/255 um (Dreieckswelle mit organischem Jitter)
 
 ---
 

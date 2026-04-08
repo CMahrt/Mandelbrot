@@ -4,7 +4,7 @@ import java.awt.*;
 
 public class PaletteLibrary {
 
-    public static final String[] NAMES = {"Graustufen", "Feuer", "Regenbogen", "Ozean"};
+    public static final String[] NAMES = {"Graustufen", "Feuer", "Regenbogen", "Ozean", "Running Colors"};
 
     public static Color[] byName(String name, int size) {
         Color[] colors = switch (name) {
