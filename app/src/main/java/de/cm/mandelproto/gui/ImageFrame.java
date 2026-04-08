@@ -33,7 +33,7 @@ public class ImageFrame extends JFrame implements MouseListener {
         PaletteMapper paletteMapper = new PaletteMapper();
         palette      = new Palette(PaletteLibrary.byName("Graustufen", 256));
         iterationMap = new MandelbrotPointMap(params);
-        pixelCanvas  = new PixelCanvas(getWidth(), getHeight(), iterationMap, palette, paletteMapper);
+        pixelCanvas  = new PixelCanvas(iterationMap.getCols(), iterationMap.getRows() + 40, iterationMap, palette, paletteMapper);
         inspector    = new InspectorFrame(params, palette, paletteMapper, this);
         configureWindow();
         registerListeners();
