@@ -25,9 +25,11 @@ public class Palette {
         this.colors = initial.clone();
     }
 
-    public int getColor(int iteration) {
-        return colors[iteration % colors.length].getRGB();
+    public int getColor(int index) {
+        return colors[index % colors.length].getRGB();
     }
+
+    public int size() { return colors.length; }
 
     public void loadColors(Color[] newColors) {
         this.colors = newColors.clone();

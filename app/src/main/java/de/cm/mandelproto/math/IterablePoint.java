@@ -1,6 +1,6 @@
 package de.cm.mandelproto.math;
 
-public interface Iterable {
+public interface IterablePoint {
     boolean iterate();
 
     int getIteration();

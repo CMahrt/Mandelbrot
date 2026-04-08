@@ -1,11 +1,10 @@
 package de.cm.mandelproto.math;
 
-public class MandelbrotPoint  implements Iterable{
+public class MandelbrotPoint implements IterablePoint {
 
     private ComplexNumber result;
     private int iteration;
     private final ComplexNumber start;
-    private int maxStep;
 
     public MandelbrotPoint(ComplexNumber start){
         result = new ComplexNumber(0,0);

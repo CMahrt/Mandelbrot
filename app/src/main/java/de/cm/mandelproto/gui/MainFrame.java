@@ -1,10 +1,7 @@
 package de.cm.mandelproto.gui;
 
 import de.cm.mandelproto.I18n;
-import de.cm.mandelproto.graphics.Palette;
-import de.cm.mandelproto.graphics.PaletteLibrary;
 import de.cm.mandelproto.math.ComplexNumber;
-import de.cm.mandelproto.math.MandelbrotPointMap;
 import de.cm.mandelproto.math.RenderParameters;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,7 +28,7 @@ public class MainFrame extends JFrame {
         createMenu();
         pack();
         setVisible(true);
-        createImageFramePair(STARTING_PARAMS);
+        openImage(STARTING_PARAMS);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
@@ -67,32 +64,9 @@ public class MainFrame extends JFrame {
         updateWindowsMenu();
     }
 
-    public void createImageFramePair(RenderParameters params) {
-        int number = imageFrames.size() + 1;
-        log.debug("Erstelle ImageFrame-Paar #{}: center={}, complexWidth={}, pixelWidth={}",
-                number, params.center(), params.complexWidth(), params.pixelWidth());
-        Palette palette = new Palette(PaletteLibrary.grayscale());
-        MandelbrotPointMap map = new MandelbrotPointMap(params);
-        ImageFrame imgFrame = new ImageFrame("Mandelbrot " + number, map, this, palette);
-        InspectorFrame inspector = new InspectorFrame(params, palette, imgFrame);
-        imgFrame.setInspector(inspector);
-        imageFrames.add(imgFrame);
+    public void openImage(RenderParameters params) {
+        imageFrames.add(new ImageFrame("Mandelbrot " + (imageFrames.size() + 1), params, this));
         updateWindowsMenu();
-
-        new SwingWorker<Void, Void>() {
-            @Override
-            protected Void doInBackground() {
-                long t = System.currentTimeMillis();
-                map.tileIterate();
-                log.info("tileIterate = {} ms", System.currentTimeMillis() - t);
-                return null;
-            }
-            @Override
-            protected void done() {
-                imgFrame.drawImage();
-                toFront();
-            }
-        }.execute();
     }
 
     public void onImageFrameClosing(ImageFrame frame) {

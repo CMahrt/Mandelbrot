@@ -12,9 +12,9 @@ public abstract class IterationMap {
 
     @Getter protected int cols;
     @Getter protected int rows;
-    protected int maxIterations;
+    @Getter protected int maxIterations;
 
-    protected Iterable[][] points;
+    protected IterablePoint[][] points;
 
     private int iterations;
 
@@ -25,11 +25,12 @@ public abstract class IterationMap {
         this.cols = params.pixelWidth();
         this.rows = params.pixelHeight();
         this.maxIterations = params.maxIterations();
-        points = new Iterable[cols][rows];
+        points = new IterablePoint[cols][rows];
         iterations = 0;
         init();
     }
 
+    @SuppressWarnings("unused")
     public boolean iterate() {
         boolean result = false;
         if (iterations < maxIterations) {
@@ -50,15 +51,15 @@ public abstract class IterationMap {
         boolean floodTile = true;
         log.trace("tileIterate {}, {} to {}, {}", left, top, right, bottom);
         for (int i = left; i < right; i++) {
-            while (points[i][top].getIteration() < maxIterations && points[i][top].iterate())
+            iterateFully(points[i][top]);
             floodTile &= points[i][top].getIteration() == maxIterations;
-            while (points[i][bottom - 1].getIteration() < maxIterations && points[i][bottom - 1].iterate()) ;
+            iterateFully(points[i][bottom - 1]);
             floodTile &= points[i][bottom - 1].getIteration() == maxIterations;
         }
         for (int i = top; i < bottom; i++) {
-            while (points[left][i].getIteration() < maxIterations && points[left][i].iterate()) ;
+            iterateFully(points[left][i]);
             floodTile &= points[left][i].getIteration() == maxIterations;
-            while (points[right - 1][i].getIteration() < maxIterations && points[right - 1][i].iterate()) ;
+            iterateFully(points[right - 1][i]);
             floodTile &= points[right - 1][i].getIteration() == maxIterations;
         }
         if (floodTile) {
@@ -69,10 +70,6 @@ public abstract class IterationMap {
                 }
             }
         } else {
-            if (right <= left && bottom <= top) {
-                log.trace("all done");
-                return;
-            }
             int widthMiddle = (left + right) / 2;
             int heightMiddle = (top + bottom) / 2;
             log.trace("tile {}, {}", widthMiddle, heightMiddle);
@@ -80,6 +77,12 @@ public abstract class IterationMap {
             tileIterate(widthMiddle, top + 1, right - 1, heightMiddle);
             tileIterate(left + 1, heightMiddle, widthMiddle, bottom - 1);
             tileIterate(widthMiddle, heightMiddle, right - 1, bottom - 1);
+        }
+    }
+
+    private void iterateFully(IterablePoint point) {
+        while (point.getIteration() < maxIterations) {
+            if (!point.iterate()) break;
         }
     }
 

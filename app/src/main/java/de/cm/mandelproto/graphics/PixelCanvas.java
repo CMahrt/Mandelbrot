@@ -14,13 +14,15 @@ public class PixelCanvas extends JComponent {
     private final BufferedImage image;
     private final IterationMap iterationMap;
     private final Palette palette;
+    private final PaletteMapper paletteMapper;
     private final ChangeListener repaintListener;
     private Rectangle previewRect;
 
-    public PixelCanvas(int width, int height, IterationMap iterationMap, Palette palette) {
+    public PixelCanvas(int width, int height, IterationMap iterationMap, Palette palette, PaletteMapper paletteMapper) {
         super();
         this.iterationMap = iterationMap;
         this.palette = palette;
+        this.paletteMapper = paletteMapper;
         this.repaintListener = e -> drawImage();
         palette.addChangeListener(repaintListener);
         setSize(width, height);
@@ -52,10 +54,11 @@ public class PixelCanvas extends JComponent {
     }
 
     public void drawImage() {
+        paletteMapper.configure(iterationMap.getMaxIterations(), palette.size());
         for (int x = 0; x < getWidth(); x++) {
             for (int y = 0; y < getHeight(); y++) {
                 int iteration = iterationMap.getIterationForCoordinate(x, y);
-                image.setRGB(x, y, palette.getColor(iteration));
+                image.setRGB(x, y, palette.getColor(paletteMapper.map(iteration)));
             }
         }
         repaint();

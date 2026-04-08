@@ -1,11 +1,13 @@
 package de.cm.mandelproto.gui;
 
 import de.cm.mandelproto.graphics.Palette;
+import de.cm.mandelproto.graphics.PaletteLibrary;
+import de.cm.mandelproto.graphics.PaletteMapper;
 import de.cm.mandelproto.graphics.PixelCanvas;
 import de.cm.mandelproto.math.ComplexNumber;
 import de.cm.mandelproto.math.IterationMap;
+import de.cm.mandelproto.math.MandelbrotPointMap;
 import de.cm.mandelproto.math.RenderParameters;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
@@ -19,25 +21,33 @@ public class ImageFrame extends JFrame implements MouseListener {
     private final IterationMap iterationMap;
     private final PixelCanvas pixelCanvas;
     private final MainFrame mainFrame;
-    @Setter
-    private InspectorFrame inspector;
+    private final InspectorFrame inspector;
+    private final Palette palette;
 
     private Point dragStart;
     private Rectangle draftRect;
 
-    public ImageFrame(
-            String title,
-            IterationMap iterationMap,
-            MainFrame mainFrame,
-            Palette palette
-    ) {
+    public ImageFrame(String title, RenderParameters params, MainFrame mainFrame) {
         super(title);
-        log.debug("create ImageFrame");
         this.mainFrame = mainFrame;
-        this.iterationMap = iterationMap;
+        PaletteMapper paletteMapper = new PaletteMapper();
+        palette      = new Palette(PaletteLibrary.byName("Graustufen", 256));
+        iterationMap = new MandelbrotPointMap(params);
+        pixelCanvas  = new PixelCanvas(getWidth(), getHeight(), iterationMap, palette, paletteMapper);
+        inspector    = new InspectorFrame(params, palette, paletteMapper, this);
+        configureWindow();
+        registerListeners();
+        setVisible(true);
+        startRendering();
+    }
+
+    private void configureWindow() {
         setSize(iterationMap.getCols(), iterationMap.getRows() + 40);
         setResizable(false);
-        pixelCanvas = new PixelCanvas(getWidth(), getHeight(), iterationMap, palette);
+        add(pixelCanvas);
+    }
+
+    private void registerListeners() {
         pixelCanvas.addMouseListener(this);
         pixelCanvas.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
@@ -49,20 +59,34 @@ public class ImageFrame extends JFrame implements MouseListener {
                 int height = Math.abs(e.getY() - dragStart.y);
                 draftRect = new Rectangle(left, top, width, height);
                 pixelCanvas.setPreviewRect(new Rectangle(draftRect));
-                if (inspector != null) inspector.updateParams(computeParamsForRect(draftRect));
+                inspector.updateParams(computeParamsForRect(draftRect));
             }
         });
-        add(pixelCanvas);
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 palette.stopCycling();
                 mainFrame.onImageFrameClosing(ImageFrame.this);
-                if (inspector != null) inspector.dispose();
+                inspector.dispose();
             }
         });
-        setVisible(true);
-        log.debug("created ImageFrame");
+    }
+
+    private void startRendering() {
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                long t = System.currentTimeMillis();
+                iterationMap.tileIterate();
+                log.info("tileIterate = {} ms", System.currentTimeMillis() - t);
+                return null;
+            }
+            @Override
+            protected void done() {
+                drawImage();
+                toFront();
+            }
+        }.execute();
     }
 
     public void drawImage() {
@@ -94,7 +118,7 @@ public class ImageFrame extends JFrame implements MouseListener {
         }
         pixelCanvas.setPreviewRect(new Rectangle(draftRect));
         RenderParameters params = computeParamsForRect(draftRect);
-        if (inspector != null) inspector.updateParams(params);
+        inspector.updateParams(params);
         return params;
     }
 
@@ -114,7 +138,7 @@ public class ImageFrame extends JFrame implements MouseListener {
         if (confirmedParams.isPresent()) {
             log.debug("ParameterDialog bestätigt: pixelWidth={}, maxIterations={}",
                     confirmedParams.get().pixelWidth(), confirmedParams.get().maxIterations());
-            mainFrame.createImageFramePair(confirmedParams.get());
+            mainFrame.openImage(confirmedParams.get());
         } else {
             log.debug("ParameterDialog abgebrochen");
         }

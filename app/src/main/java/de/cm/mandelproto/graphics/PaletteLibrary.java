@@ -6,22 +6,24 @@ public class PaletteLibrary {
 
     public static final String[] NAMES = {"Graustufen", "Feuer", "Regenbogen", "Ozean"};
 
-    public static Color[] byName(String name) {
-        return switch (name) {
-            case "Feuer"      -> fire();
-            case "Regenbogen" -> rainbow();
-            case "Ozean"      -> ocean();
-            default           -> grayscale();
+    public static Color[] byName(String name, int size) {
+        Color[] colors = switch (name) {
+            case "Feuer"      -> fire(size);
+            case "Regenbogen" -> rainbow(size);
+            case "Ozean"      -> ocean(size);
+            default           -> grayscale(size);
         };
+        colors[colors.length - 1] = new Color(0, 0, 0);  // reservierter Innen-Eintrag
+        return colors;
     }
 
-    public static Color[] grayscale() {
-        Color[] p = new Color[256];
-        for (int i = 0; i < 256; i++) p[i] = new Color(i, i, i);
+    public static Color[] grayscale(int size) {
+        Color[] p = new Color[size];
+        for (int i = 0; i < size; i++) p[i] = new Color(i * 255 / (size - 1), i * 255 / (size - 1), i * 255 / (size - 1));
         return p;
     }
 
-    public static Color[] fire() {
+    public static Color[] fire(int size) {
         // schwarz → rot → orange → gelb → weiß
         Color[] keyColors = {
             new Color(0, 0, 0),
@@ -30,18 +32,18 @@ public class PaletteLibrary {
             new Color(255, 220, 0),
             new Color(255, 255, 255)
         };
-        return interpolate(keyColors, 256);
+        return interpolate(keyColors, size);
     }
 
-    public static Color[] rainbow() {
-        Color[] p = new Color[256];
-        for (int i = 0; i < 256; i++) {
-            p[i] = Color.getHSBColor(i / 256f, 1f, 1f);
+    public static Color[] rainbow(int size) {
+        Color[] p = new Color[size];
+        for (int i = 0; i < size; i++) {
+            p[i] = Color.getHSBColor(i / (float) size, 1f, 1f);
         }
         return p;
     }
 
-    public static Color[] ocean() {
+    public static Color[] ocean(int size) {
         // schwarz → dunkelblau → cyan → weiß
         Color[] keyColors = {
             new Color(0, 0, 0),
@@ -50,7 +52,7 @@ public class PaletteLibrary {
             new Color(0, 220, 220),
             new Color(255, 255, 255)
         };
-        return interpolate(keyColors, 256);
+        return interpolate(keyColors, size);
     }
 
     private static Color[] interpolate(Color[] keys, int size) {
