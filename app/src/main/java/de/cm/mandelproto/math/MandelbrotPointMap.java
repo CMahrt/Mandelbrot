@@ -12,6 +12,21 @@ public class MandelbrotPointMap extends IterationMap {
         super(params);
     }
 
+    /**
+     * Erzeugt eine MandelbrotPointMap aus vorberechneten Iterationsdaten (z.B. aus einer .mfrac-Datei).
+     * Die Punkte werden normal initialisiert (korrekte komplexe Koordinaten), nur die Iterationswerte
+     * werden aus {@code data} übernommen statt berechnet.
+     *
+     * @param data col-major: {@code data[col][row]}
+     */
+    public static MandelbrotPointMap fromData(RenderParameters params, int[][] data) {
+        MandelbrotPointMap map = new MandelbrotPointMap(params);
+        for (int col = 0; col < map.getCols(); col++)
+            for (int row = 0; row < map.getRows(); row++)
+                map.points[col][row].setIteration(data[col][row]);
+        return map;
+    }
+
     @Override
     public void init() {
         step = width / cols;

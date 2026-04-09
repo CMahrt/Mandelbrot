@@ -1,11 +1,16 @@
 package de.cm.mandelproto.gui;
 
 import de.cm.mandelproto.I18n;
+import de.cm.mandelproto.io.FractalIO;
+import de.cm.mandelproto.io.FractalSnapshot;
 import de.cm.mandelproto.math.ComplexNumber;
 import de.cm.mandelproto.math.RenderParameters;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -15,6 +20,8 @@ public class MainFrame extends JFrame {
 
     private final List<ImageFrame> imageFrames = new ArrayList<>();
 
+    private JMenu menuFile;
+    private JMenuItem itemLoadFractal;
     private JMenu menuWindows;
     private JMenu menuSettings;
     private JRadioButtonMenuItem itemLangDe;
@@ -34,6 +41,12 @@ public class MainFrame extends JFrame {
 
     private void createMenu() {
         JMenuBar menuBar = new JMenuBar();
+
+        menuFile = new JMenu();
+        itemLoadFractal = new JMenuItem();
+        itemLoadFractal.addActionListener(e -> loadFractalFromFile());
+        menuFile.add(itemLoadFractal);
+        menuBar.add(menuFile);
 
         menuWindows = new JMenu();
         menuBar.add(menuWindows);
@@ -57,6 +70,8 @@ public class MainFrame extends JFrame {
     }
 
     private void applyTexts() {
+        menuFile.setText(I18n.get("menu.file"));
+        itemLoadFractal.setText(I18n.get("menu.file.loadFractal"));
         menuWindows.setText(I18n.get("menu.windows"));
         menuSettings.setText(I18n.get("menu.settings"));
         itemLangDe.setText(I18n.get("menu.settings.lang.de"));
@@ -67,6 +82,27 @@ public class MainFrame extends JFrame {
     public void openImage(RenderParameters params) {
         imageFrames.add(new ImageFrame("Mandelbrot " + (imageFrames.size() + 1), params, this));
         updateWindowsMenu();
+    }
+
+    private void loadFractalFromFile() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle(I18n.get("dialog.loadFractal.title"));
+        chooser.setFileFilter(new FileNameExtensionFilter(I18n.get("filefilter.mfrac.description"), "mfrac"));
+        if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return;
+
+        File file = chooser.getSelectedFile();
+        try {
+            FractalSnapshot snapshot = FractalIO.load(file);
+            String title = "Mandelbrot " + (imageFrames.size() + 1) + " [" + file.getName() + "]";
+            imageFrames.add(new ImageFrame(title, snapshot, this));
+            updateWindowsMenu();
+        } catch (IOException ex) {
+            log.error("Laden fehlgeschlagen", ex);
+            JOptionPane.showMessageDialog(this,
+                    I18n.get("error.loadFailed") + "\n" + ex.getMessage(),
+                    I18n.get("error.title"),
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public void onImageFrameClosing(ImageFrame frame) {

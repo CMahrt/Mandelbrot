@@ -49,11 +49,19 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 - [v] Maximale Iterationszahl konfigurierbar (Eingabefeld in Panel_Mandelbrot)
 - [v] Je tiefer der Zoom, desto höhere Tiefe nötig — automatischer Vorschlag in der UI
 
+### Nachschärfen (Incremental Refine)
+- [ ] Button „Nachschärfen" im Inspector — öffnet Dialog zur Eingabe einer neuen (höheren) Iterationstiefe
+- [ ] Nur Punkte, die bisher `maxIterations` erreicht haben, werden neu berechnet — sie gelten als „noch unentschieden" und könnten mit mehr Iterationen entkommen
+- [ ] Punkte, die bereits entkommen sind (Iterationszahl < altes Maximum), bleiben unverändert — kein Neuberechnen nötig
+- [ ] `IterationMap` muss dazu den alten `maxIterations`-Wert kennen, um die Kandidaten-Punkte identifizieren zu können
+- [ ] Nach dem Nachschärfen: `maxIterations` des Frames wird auf den neuen Wert aktualisiert
+- Effekt: Man kann ein bereits gerendertes Bild mit wenig Aufwand verfeinern, ohne alles neu zu rechnen
+
 ### Iterations-zu-Paletten-Kurve (Mapping)
-- [ ] Nicht-lineares Mapping von Iterationswert → Palettenindex
-- [ ] Kleine Iterationswerte (Randbereich): 1 Iteration = 1 Paletteneintrag (feine Auflösung)
-- [ ] Große Iterationswerte (Innenbereich): mehrere Iterationen → 1 Paletteneintrag (komprimiert)
-- [ ] Kurvenform einstellbar (z.B. logarithmisch, quadratisch, linear)
+- [v] Nicht-lineares Mapping von Iterationswert → Palettenindex
+- [v] Kleine Iterationswerte (Randbereich): 1 Iteration = 1 Paletteneintrag (feine Auflösung)
+- [v] Große Iterationswerte (Innenbereich): mehrere Iterationen → 1 Paletteneintrag (komprimiert)
+- [v] Kurvenform einstellbar (z.B. logarithmisch, quadratisch, linear) — LINEAR, SQRT, LOG in `PaletteMapper`
 - Effekt: visuell interessante Randbereiche bleiben scharf, egal wie groß die max. Iterationstiefe ist
 
 ---
@@ -63,7 +71,7 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 ### Zoom-Steuerung
 - [ ] Zoomfaktor statt roher Breite: Zoom 1 = volle Breite (~3), Zoom 10 = 1/10 davon, etc.
 - [ ] Logarithmischer Slider für Zoomfaktor (da Zoom-Bereich viele Größenordnungen überspannt)
-- [ ] Ausschnittswahl per Maus (Rechteck aufziehen auf dem Fraktalbild)
+- [v] Ausschnittswahl per Maus (Rechteck aufziehen auf dem Fraktalbild) — siehe "Präzise Ausschnittswahl" unten
 
 ### Visueller Schnellzoom per Mausrad
 - [ ] Mausrad auf dem Fraktalbild skaliert das vorhandene BufferedImage (kein Neuberechnen)
@@ -149,8 +157,8 @@ Ablösung von `Panel_Mandelbrot` durch ein neues, klar getrenntes UI-Modell:
   - PNG verlustfrei (empfehlenswert für scharfe Farbgrenzen), JPEG für kleinere Dateien
 
 ### Rohdaten (vollständig)
-- [ ] Iterationsmap + Palette + Berechnungsparameter speichern
-- [ ] Ermöglicht: Bild wieder laden ohne Neuberechnung, Palette nachträglich ändern
+- [v] Iterationsmap + Palette + Berechnungsparameter speichern — `.mfrac` JSON-Format
+- [v] Ermöglicht: Bild wieder laden ohne Neuberechnung, Palette nachträglich ändern
 
 ### Parameter-Snapshot (leichtgewichtig)
 - [ ] Nur Berechnungsparameter speichern (Koordinaten, Zoom, Iterationstiefe, Palettenreferenz)
@@ -187,6 +195,19 @@ Ablösung von `Panel_Mandelbrot` durch ein neues, klar getrenntes UI-Modell:
 - [ ] Abspielansicht zeigt die Frames als flüssiges Filmchen (einstellbare FPS)
 - [ ] Optionale Rotation entlang der Sequenz mitanimierbar (kombiniert mit Drehbarer-Blickwinkel-Feature)
 - [ ] Export der Framesequenz als Videodatei (z.B. MP4 via FFmpeg) oder animiertes GIF
+
+---
+
+## Mathematische Grundlagen / Offene Fragen
+
+### Präzisionsgrenze bei tiefen Zooms
+- [ ] **Klären: ab welchem Zoomfaktor werden `double`-Koordinaten sinnlos?**
+  - `double` (64-bit IEEE 754) hat ~15–16 signifikante Dezimalstellen
+  - Ausgangsbereich der komplexen Ebene: Breite ≈ 3,5 (Größenordnung 10⁰)
+  - Pixelschritt = `complexWidth / pixelWidth`; bei 1000 px und `complexWidth = 1e-13` wäre Pixelschritt ≈ 1e-16 — unterhalb der `double`-Auflösung
+  - Faustformel: sinnvolle Grenze liegt bei `complexWidth` ≈ 1e-13 bis 1e-14
+  - **Maßnahmen:** UI-Warnung wenn Grenze unterschritten wird; langfristig: Umstieg auf `BigDecimal` oder Perturbationstheorie (Referenzorbit) für beliebig tiefe Zooms
+  - Perturbationstheorie erlaubt extrem tiefe Zooms mit `double`-Arithmetik durch geschickte Umformung um einen Referenzpunkt — Standardansatz in modernen Mandelbrot-Renderern
 
 ---
 

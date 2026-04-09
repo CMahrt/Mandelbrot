@@ -88,6 +88,10 @@ public abstract class IterationMap {
 
     public abstract void init();
 
+    public RenderParameters getRenderParameters() {
+        return new RenderParameters(center, width, height, cols, maxIterations);
+    }
+
     public int getIterationForCoordinate(int x, int y) {
         if (x >= cols || y >= rows) return 0;
         return points[x][y].getIteration();

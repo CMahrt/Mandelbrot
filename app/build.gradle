@@ -33,6 +33,9 @@ dependencies {
     // Logging
     implementation libs.slf4j.api
     runtimeOnly libs.logback.classic
+
+    // JSON
+    implementation libs.jackson.databind
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

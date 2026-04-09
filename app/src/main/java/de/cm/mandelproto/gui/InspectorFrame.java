@@ -38,6 +38,7 @@ public class InspectorFrame extends JDialog {
 
     // Action
     private JButton btn_newSelection;
+    private JButton btn_save;
 
     public InspectorFrame(RenderParameters params, Palette palette, PaletteMapper paletteMapper, ImageFrame imageFrame) {
         super(imageFrame, false);  // imageFrame als Owner, nicht modal
@@ -106,8 +107,11 @@ public class InspectorFrame extends JDialog {
     private JPanel buildActionPanel() {
         btn_newSelection = new JButton();
         btn_newSelection.addActionListener(e -> imageFrame.enterSelectionMode());
+        btn_save = new JButton();
+        btn_save.addActionListener(e -> imageFrame.saveToFile());
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
         p.add(btn_newSelection);
+        p.add(btn_save);
         return p;
     }
 
@@ -201,6 +205,7 @@ public class InspectorFrame extends JDialog {
         cb_curve.repaint();
         btn_openRunningColors.setText(I18n.get("button.configureRunningColors"));
         btn_newSelection.setText(I18n.get("button.newSelection"));
+        btn_save.setText(I18n.get("button.saveFractal"));
         pack();
     }
 

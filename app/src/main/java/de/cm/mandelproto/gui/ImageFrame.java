@@ -1,9 +1,12 @@
 package de.cm.mandelproto.gui;
 
+import de.cm.mandelproto.I18n;
 import de.cm.mandelproto.graphics.Palette;
 import de.cm.mandelproto.graphics.PaletteLibrary;
 import de.cm.mandelproto.graphics.PaletteMapper;
 import de.cm.mandelproto.graphics.PixelCanvas;
+import de.cm.mandelproto.io.FractalIO;
+import de.cm.mandelproto.io.FractalSnapshot;
 import de.cm.mandelproto.math.ComplexNumber;
 import de.cm.mandelproto.math.IterationMap;
 import de.cm.mandelproto.math.MandelbrotPointMap;
@@ -11,8 +14,11 @@ import de.cm.mandelproto.math.RenderParameters;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
 
 @Slf4j
@@ -26,6 +32,20 @@ public class ImageFrame extends JFrame implements MouseListener {
 
     private Point dragStart;
     private Rectangle draftRect;
+
+    public ImageFrame(String title, FractalSnapshot snapshot, MainFrame mainFrame) {
+        super(title);
+        this.mainFrame = mainFrame;
+        PaletteMapper paletteMapper = new PaletteMapper();
+        palette      = new Palette(snapshot.palette());
+        iterationMap = MandelbrotPointMap.fromData(snapshot.params(), snapshot.iterations());
+        pixelCanvas  = new PixelCanvas(iterationMap.getCols(), iterationMap.getRows() + 40, iterationMap, palette, paletteMapper);
+        inspector    = new InspectorFrame(snapshot.params(), palette, paletteMapper, this);
+        configureWindow();
+        registerListeners();
+        setVisible(true);
+        drawImage();
+    }
 
     public ImageFrame(String title, RenderParameters params, MainFrame mainFrame) {
         super(title);
@@ -187,6 +207,27 @@ public class ImageFrame extends JFrame implements MouseListener {
 
     @Override public void mouseEntered(MouseEvent e) {}
     @Override public void mouseExited(MouseEvent e) {}
+
+    public void saveToFile() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle(I18n.get("dialog.saveFractal.title"));
+        chooser.setFileFilter(new FileNameExtensionFilter(I18n.get("filefilter.mfrac.description"), "mfrac"));
+        if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+
+        File file = chooser.getSelectedFile();
+        if (!file.getName().endsWith(".mfrac")) {
+            file = new File(file.getParentFile(), file.getName() + ".mfrac");
+        }
+        try {
+            FractalIO.save(file, iterationMap.getRenderParameters(), iterationMap, palette);
+        } catch (IOException ex) {
+            log.error("Speichern fehlgeschlagen", ex);
+            JOptionPane.showMessageDialog(this,
+                    I18n.get("error.saveFailed") + "\n" + ex.getMessage(),
+                    I18n.get("error.title"),
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     private static int suggestMaxIterations(double complexWidth) {
         return Math.max(100, (int) (150 * Math.log10(38.4 / complexWidth)));

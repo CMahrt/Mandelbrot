@@ -7,6 +7,7 @@ junit-jupiter = "5.10.2"
 lombok = "1.18.36"
 slf4j = "2.0.16"
 logback = "1.5.18"
+jackson = "2.18.2"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -14,3 +15,4 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jun
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
