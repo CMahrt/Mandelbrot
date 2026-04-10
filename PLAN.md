@@ -80,9 +80,9 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 - [v] Ausschnittswahl per Maus (Rechteck aufziehen auf dem Fraktalbild) — siehe "Präzise Ausschnittswahl" unten
 
 ### Visueller Schnellzoom per Mausrad
-- [ ] Mausrad auf dem Fraktalbild skaliert das vorhandene BufferedImage (kein Neuberechnen)
-- [ ] Zoom zentriert auf die aktuelle Mausposition
-- [ ] Nur visuelles Feedback — Pixel werden unschärfer je weiter man reinzoomt
+- [v] Mausrad auf dem Fraktalbild skaliert das vorhandene BufferedImage (kein Neuberechnen)
+- [v] Zoom zentriert auf die aktuelle Mausposition (auch wenn Bild kleiner als Fenster)
+- [v] Nur visuelles Feedback — Pixel werden unschärfer je weiter man reinzoomt
 - [ ] Steuerungsfenster aktualisiert Koordinaten und complexWidth passend zum Skalierungsfaktor
 - [ ] Erst ein expliziter Render-Aufruf (Ok-Button) berechnet das Bild in voller Qualität neu
 
@@ -149,6 +149,7 @@ Ablösung von `Panel_Mandelbrot` durch ein neues, klar getrenntes UI-Modell:
 - [v] **App-Start auf EDT** — `App.main()` verwendet `SwingUtilities.invokeLater(MainFrame::new)`
 
 ### Weitere Performance-Features
+- [ ] **IterationMap: primitive Arrays statt Objekte** — `MandelbrotPoint[][]` ersetzen durch `int[][] iterations` + `double[][] zReal, zImag`; `start`-Wert (c) aus Pixelkoordinaten neu berechnen statt speichern. Ergebnis: ~20-fache Speicherreduktion (~20 Byte/Pixel statt ~90 Byte), Cache-freundlich, Voraussetzung für Bilder bis 30000 px und effektives Multithreading
 - [ ] **Progressives Rendering** (grob → fein) — erst mit niedriger Auflösung rechnen, schrittweise verfeinern; User sieht sofort ein Bild
 - [ ] **Multithreading** — Bildbereich auf mehrere CPU-Kerne aufteilen (ForkJoinPool o.ä.)
 - [ ] **Abbruch laufender Berechnung** — wenn User Ausschnitt wechselt, alte Berechnung stoppen
@@ -198,10 +199,10 @@ Ablösung von `Panel_Mandelbrot` durch ein neues, klar getrenntes UI-Modell:
 ---
 
 ### Scrollbares Fraktalbild
-- [ ] `PixelCanvas` in einen `JScrollPane` einbetten
-- [ ] Bild bleibt in voller Pixelgröße gerendert — kein Skalieren/Strecken
-- [ ] Scrollbalken erscheinen automatisch, wenn das Bild größer als das Fenster ist
-- [ ] Fenster darf kleiner als das Bild sein (kein erzwungenes Verkleinern des Bildes)
+- [v] `PixelCanvas` in einen `JScrollPane` einbetten
+- [v] Bild bleibt in voller Pixelgröße gerendert — kein Skalieren/Strecken
+- [v] Scrollbalken erscheinen automatisch, wenn das Bild größer als das Fenster ist
+- [v] Fenster darf kleiner als das Bild sein (kein erzwungenes Verkleinern des Bildes)
 
 ---
 

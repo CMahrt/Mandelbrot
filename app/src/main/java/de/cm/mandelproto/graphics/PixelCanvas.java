@@ -11,12 +11,16 @@ import java.awt.image.BufferedImage;
 @Slf4j
 public class PixelCanvas extends JComponent {
 
+    private static final double SCALE_MIN = 0.1;
+    private static final double SCALE_MAX = 4.0;
+
     private final BufferedImage image;
     private final IterationMap iterationMap;
     private final Palette palette;
     private final PaletteMapper paletteMapper;
     private final ChangeListener repaintListener;
     private Rectangle previewRect;
+    private double viewScale = 1.0;
 
     public PixelCanvas(int width, int height, IterationMap iterationMap, Palette palette, PaletteMapper paletteMapper) {
         super();
@@ -25,10 +29,25 @@ public class PixelCanvas extends JComponent {
         this.paletteMapper = paletteMapper;
         this.repaintListener = e -> drawImage();
         palette.addChangeListener(repaintListener);
-        setSize(width, height);
         setDoubleBuffered(true);
-        image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         drawImage();
+    }
+
+    public double getViewScale() { return viewScale; }
+
+    public void setViewScale(double scale) {
+        viewScale = Math.max(SCALE_MIN, Math.min(SCALE_MAX, scale));
+        revalidate();
+        repaint();
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(
+                (int)(image.getWidth()  * viewScale),
+                (int)(image.getHeight() * viewScale)
+        );
     }
 
     @Override
@@ -40,11 +59,18 @@ public class PixelCanvas extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(image, 0, 0, this);
+        int w = (int)(image.getWidth()  * viewScale);
+        int h = (int)(image.getHeight() * viewScale);
+        g.drawImage(image, 0, 0, w, h, this);
         if (previewRect != null) {
             Graphics2D g2 = (Graphics2D) g;
             g2.setColor(Color.RED);
-            g2.draw(previewRect);
+            g2.drawRect(
+                    (int)(previewRect.x      * viewScale),
+                    (int)(previewRect.y      * viewScale),
+                    (int)(previewRect.width  * viewScale),
+                    (int)(previewRect.height * viewScale)
+            );
         }
     }
 
@@ -55,8 +81,8 @@ public class PixelCanvas extends JComponent {
 
     public void drawImage() {
         paletteMapper.configure(iterationMap.getMinIteration(), iterationMap.getMaxIterations(), palette.size());
-        for (int x = 0; x < getWidth(); x++) {
-            for (int y = 0; y < getHeight(); y++) {
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
                 int iteration = iterationMap.getIterationForCoordinate(x, y);
                 image.setRGB(x, y, palette.getColor(paletteMapper.map(iteration)));
             }

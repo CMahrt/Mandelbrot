@@ -48,6 +48,7 @@ java {
 application {
     // Define the main class for the application.
     mainClass = 'de.cm.mandelproto.App'
+    applicationDefaultJvmArgs = ['-Xmx16g']
 }
 
 tasks.named('test') {

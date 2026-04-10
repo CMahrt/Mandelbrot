@@ -30,6 +30,8 @@ public class ImageFrame extends JFrame implements MouseListener {
     private final MainFrame mainFrame;
     private final InspectorFrame inspector;
     private final Palette palette;
+    private JScrollPane scrollPane;
+    private JPanel centerer;
 
     private Point dragStart;
     private Rectangle draftRect;
@@ -41,12 +43,13 @@ public class ImageFrame extends JFrame implements MouseListener {
         PaletteMapper paletteMapper = new PaletteMapper();
         palette      = new Palette(snapshot.palette());
         iterationMap = MandelbrotPointMap.fromData(snapshot.params(), snapshot.iterations(), snapshot.minIteration());
-        pixelCanvas  = new PixelCanvas(iterationMap.getCols(), iterationMap.getRows() + 40, iterationMap, palette, paletteMapper);
+        pixelCanvas  = new PixelCanvas(iterationMap.getCols(), iterationMap.getRows(), iterationMap, palette, paletteMapper);
         inspector    = new InspectorFrame(iterationMap, palette, paletteMapper, this);
         configureWindow();
         registerListeners();
         setVisible(true);
         drawImage();
+        scrollToCenter();
     }
 
     public ImageFrame(String title, RenderParameters params, MainFrame mainFrame) {
@@ -55,7 +58,7 @@ public class ImageFrame extends JFrame implements MouseListener {
         PaletteMapper paletteMapper = new PaletteMapper();
         palette      = new Palette(PaletteLibrary.byName("Graustufen", 256));
         iterationMap = new MandelbrotPointMap(params);
-        pixelCanvas  = new PixelCanvas(iterationMap.getCols(), iterationMap.getRows() + 40, iterationMap, palette, paletteMapper);
+        pixelCanvas  = new PixelCanvas(iterationMap.getCols(), iterationMap.getRows(), iterationMap, palette, paletteMapper);
         inspector    = new InspectorFrame(iterationMap, palette, paletteMapper, this);
         configureWindow();
         registerListeners();
@@ -64,9 +67,57 @@ public class ImageFrame extends JFrame implements MouseListener {
     }
 
     private void configureWindow() {
-        setSize(iterationMap.getCols(), iterationMap.getRows() + 40);
-        setResizable(false);
-        add(pixelCanvas);
+        setResizable(true);
+        centerer = new JPanel(null); // null-Layout: manuelle Positionierung von pixelCanvas
+        centerer.add(pixelCanvas);
+        // Initiale Bounds setzen, damit pixelCanvas vor scrollToCenter() sichtbar ist
+        Dimension canvas = pixelCanvas.getPreferredSize();
+        pixelCanvas.setBounds(0, 0, canvas.width, canvas.height);
+        centerer.setPreferredSize(canvas);
+        scrollPane = new JScrollPane(centerer);
+        add(scrollPane);
+        pack();
+        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        int maxW = (int)(screen.width  * 0.9);
+        int maxH = (int)(screen.height * 0.9);
+        if (getWidth() > maxW || getHeight() > maxH) {
+            setSize(Math.min(getWidth(), maxW), Math.min(getHeight(), maxH));
+        }
+    }
+
+    /**
+     * Positioniert pixelCanvas innerhalb des Centerers und setzt die Scrollposition.
+     * canvasX/canvasY: Position von pixelCanvas in Centerer-Koordinaten (≥ 0).
+     * scrollX/scrollY: Scroll-Offset des Viewports im Centerer (≥ 0).
+     * Invariante: canvasX - scrollX = gewünschte Canvas-Position im Viewport.
+     */
+    private void placeCanvas(int canvasX, int canvasY, int scrollX, int scrollY) {
+        Dimension canvas = pixelCanvas.getPreferredSize();
+        Dimension vp     = scrollPane.getViewport().getSize();
+        centerer.setPreferredSize(new Dimension(
+                Math.max(vp.width,  canvasX + canvas.width),
+                Math.max(vp.height, canvasY + canvas.height)
+        ));
+        pixelCanvas.setBounds(canvasX, canvasY, canvas.width, canvas.height);
+        // Synchrones validate() statt revalidate(): Layout läuft sofort durch,
+        // ScrollPaneLayout passt Scroll-Bars an — danach setzen wir die Position,
+        // ohne dass ein späterer Layout-Pass sie wieder überschreiben kann.
+        scrollPane.validate();
+        scrollPane.getViewport().setViewPosition(new Point(scrollX, scrollY));
+    }
+
+    private void scrollToCenter() {
+        SwingUtilities.invokeLater(() -> {
+            Dimension canvas = pixelCanvas.getPreferredSize();
+            Dimension vp     = scrollPane.getViewport().getSize();
+            // Kleines Bild: Canvas mittig im Centerer, kein Scrollen
+            // Großes Bild: Canvas bei (0,0), Scroll auf Bildmitte
+            int canvasX = Math.max(0, (vp.width  - canvas.width)  / 2);
+            int canvasY = Math.max(0, (vp.height - canvas.height) / 2);
+            int scrollX = Math.max(0, (canvas.width  - vp.width)  / 2);
+            int scrollY = Math.max(0, (canvas.height - vp.height) / 2);
+            placeCanvas(canvasX, canvasY, scrollX, scrollY);
+        });
     }
 
     private void registerListeners() {
@@ -75,13 +126,43 @@ public class ImageFrame extends JFrame implements MouseListener {
             @Override
             public void mouseDragged(MouseEvent e) {
                 if (dragStart == null) return;
-                int left   = Math.min(dragStart.x, e.getX());
-                int top    = Math.min(dragStart.y, e.getY());
-                int width  = Math.abs(e.getX() - dragStart.x);
-                int height = Math.abs(e.getY() - dragStart.y);
+                int x = (int)(e.getX() / pixelCanvas.getViewScale());
+                int y = (int)(e.getY() / pixelCanvas.getViewScale());
+                int left   = Math.min(dragStart.x, x);
+                int top    = Math.min(dragStart.y, y);
+                int width  = Math.abs(x - dragStart.x);
+                int height = Math.abs(y - dragStart.y);
                 draftRect = new Rectangle(left, top, width, height);
                 pixelCanvas.setPreviewRect(new Rectangle(draftRect));
             }
+        });
+        pixelCanvas.addMouseWheelListener(e -> {
+            double oldScale = pixelCanvas.getViewScale();
+            double factor   = Math.pow(1.05, -e.getPreciseWheelRotation());
+            double newScale = Math.max(0.1, Math.min(4.0, oldScale * factor));
+            if (newScale == oldScale) { e.consume(); return; }
+
+            // Mausposition im Viewport-Anzeigebereich (vor dem Zoom)
+            Point mouseInVP = SwingUtilities.convertPoint(pixelCanvas, e.getPoint(), scrollPane.getViewport());
+            // Nativer Bildpunkt unter dem Zeiger
+            double imgX = e.getX() / oldScale;
+            double imgY = e.getY() / oldScale;
+
+            pixelCanvas.setViewScale(newScale);
+
+            // Gewünschte Canvas-Oberkante im Viewport nach dem Zoom:
+            // Der native Punkt (imgX, imgY) liegt jetzt bei Canvas-Pos (imgX*newScale, imgY*newScale)
+            // und soll weiterhin bei mouseInVP im Viewport erscheinen.
+            double canvasPosX = mouseInVP.x - imgX * newScale;
+            double canvasPosY = mouseInVP.y - imgY * newScale;
+
+            // Aufteilen in Canvas-Position im Centerer (≥0) + Scroll-Offset (≥0)
+            int canvasX = (int) Math.max(0, Math.round(canvasPosX));
+            int canvasY = (int) Math.max(0, Math.round(canvasPosY));
+            int scrollX = (int) Math.max(0, Math.round(-canvasPosX));
+            int scrollY = (int) Math.max(0, Math.round(-canvasPosY));
+            placeCanvas(canvasX, canvasY, scrollX, scrollY);
+            e.consume();
         });
         addWindowListener(new WindowAdapter() {
             @Override
@@ -108,6 +189,7 @@ public class ImageFrame extends JFrame implements MouseListener {
                 setBusy(false);
                 drawImage();
                 inspector.updateParams(iterationMap);
+                scrollToCenter();
                 toFront();
             }
         }.execute();
@@ -200,9 +282,12 @@ public class ImageFrame extends JFrame implements MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        if (!inspector.isVisible()) inspector.setVisible(true);
         if (!selectionMode) return;
-        log.debug("mousePressed on {}, {}", e.getX(), e.getY());
-        dragStart = new Point(e.getX(), e.getY());
+        int x = (int)(e.getX() / pixelCanvas.getViewScale());
+        int y = (int)(e.getY() / pixelCanvas.getViewScale());
+        log.debug("mousePressed on {}, {} (native: {}, {})", e.getX(), e.getY(), x, y);
+        dragStart = new Point(x, y);
         draftRect = null;
     }
 

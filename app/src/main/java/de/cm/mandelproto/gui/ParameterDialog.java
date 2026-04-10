@@ -19,7 +19,7 @@ public class ParameterDialog extends JDialog {
     }
 
     // --- Felder ---
-    private final Dimension screen;
+    private static final int MAX_PIXELS = 10000;
     private RenderParameters current;
     private boolean confirmed = false;
 
@@ -51,7 +51,6 @@ public class ParameterDialog extends JDialog {
     private ParameterDialog(Component parent, RenderParameters initialParams) {
         super(SwingUtilities.getWindowAncestor(parent),
                 I18n.get("dialog.newImage.title"), ModalityType.APPLICATION_MODAL);
-        this.screen  = Toolkit.getDefaultToolkit().getScreenSize();
         this.current = initialParams;
 
         val_centerReal   = makeValueLabel(fmt(initialParams.center().getReal()));
@@ -126,10 +125,10 @@ public class ParameterDialog extends JDialog {
 
     private void updatePixelHeight() {
         try {
-            int pw = Math.min(tf_pixelWidth.getInt(), screen.width);
+            int pw = Math.min(tf_pixelWidth.getInt(), MAX_PIXELS);
             int ph = (int) ((current.complexHeight() / current.complexWidth()) * pw);
-            if (ph > screen.height) {
-                ph = screen.height;
+            if (ph > MAX_PIXELS) {
+                ph = MAX_PIXELS;
                 pw = (int) ((current.complexWidth() / current.complexHeight()) * ph);
                 tf_pixelWidth.setInt(pw);
             }
