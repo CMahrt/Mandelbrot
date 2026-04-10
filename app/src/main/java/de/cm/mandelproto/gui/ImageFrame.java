@@ -94,6 +94,7 @@ public class ImageFrame extends JFrame implements MouseListener {
     }
 
     private void startRendering() {
+        setBusy(true);
         new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() {
@@ -104,10 +105,17 @@ public class ImageFrame extends JFrame implements MouseListener {
             }
             @Override
             protected void done() {
+                setBusy(false);
                 drawImage();
                 toFront();
             }
         }.execute();
+    }
+
+    private void setBusy(boolean busy) {
+        pixelCanvas.setCursor(busy
+                ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)
+                : Cursor.getDefaultCursor());
     }
 
     public void drawImage() {
@@ -260,6 +268,7 @@ public class ImageFrame extends JFrame implements MouseListener {
             return;
         }
         inspector.setRefineEnabled(false);
+        setBusy(true);
         final int finalNewMax = newMax;
         new SwingWorker<Void, Void>() {
             @Override
@@ -271,6 +280,7 @@ public class ImageFrame extends JFrame implements MouseListener {
             }
             @Override
             protected void done() {
+                setBusy(false);
                 drawImage();
                 inspector.updateParams(iterationMap.getRenderParameters());
                 inspector.setRefineEnabled(true);
