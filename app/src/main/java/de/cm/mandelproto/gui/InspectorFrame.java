@@ -4,6 +4,7 @@ import de.cm.mandelproto.I18n;
 import de.cm.mandelproto.graphics.Palette;
 import de.cm.mandelproto.graphics.PaletteLibrary;
 import de.cm.mandelproto.graphics.PaletteMapper;
+import de.cm.mandelproto.math.IterationMap;
 import de.cm.mandelproto.math.RenderParameters;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +27,7 @@ public class InspectorFrame extends JDialog {
     private JLabel lbl_pixelWidthKey, lbl_pixelWidthVal;
     private JLabel lbl_pixelHeightKey, lbl_pixelHeightVal;
     private JLabel lbl_maxIterationsKey, lbl_maxIterationsVal;
+    private JLabel lbl_minIterationKey,  lbl_minIterationVal;
 
     // Color section
     private JLabel lbl_palette;
@@ -41,13 +43,13 @@ public class InspectorFrame extends JDialog {
     private JButton btn_save;
     private JButton btn_refine;
 
-    public InspectorFrame(RenderParameters params, Palette palette, PaletteMapper paletteMapper, ImageFrame imageFrame) {
+    public InspectorFrame(IterationMap iterationMap, Palette palette, PaletteMapper paletteMapper, ImageFrame imageFrame) {
         super(imageFrame, false);  // imageFrame als Owner, nicht modal
         this.palette = palette;
         this.paletteMapper = paletteMapper;
         this.imageFrame = imageFrame;
         buildUI();
-        updateParams(params);
+        updateParams(iterationMap);
         applyTexts();
         I18n.addListener(langListener);
         pack();
@@ -79,10 +81,11 @@ public class InspectorFrame extends JDialog {
         lbl_pixelWidthKey    = new JLabel(); lbl_pixelWidthVal    = new JLabel();
         lbl_pixelHeightKey   = new JLabel(); lbl_pixelHeightVal   = new JLabel();
         lbl_maxIterationsKey = new JLabel(); lbl_maxIterationsVal = new JLabel();
+        lbl_minIterationKey  = new JLabel(); lbl_minIterationVal  = new JLabel();
 
         for (JLabel val : new JLabel[]{lbl_centerRealVal, lbl_centerImagVal,
                 lbl_complexWidthVal, lbl_complexHeightVal,
-                lbl_pixelWidthVal, lbl_pixelHeightVal, lbl_maxIterationsVal}) {
+                lbl_pixelWidthVal, lbl_pixelHeightVal, lbl_maxIterationsVal, lbl_minIterationVal}) {
             val.setHorizontalAlignment(JLabel.RIGHT);
         }
 
@@ -93,6 +96,7 @@ public class InspectorFrame extends JDialog {
         p.add(lbl_pixelWidthKey);    p.add(lbl_pixelWidthVal);
         p.add(lbl_pixelHeightKey);   p.add(lbl_pixelHeightVal);
         p.add(lbl_maxIterationsKey); p.add(lbl_maxIterationsVal);
+        p.add(lbl_minIterationKey);  p.add(lbl_minIterationVal);
         return p;
     }
 
@@ -188,7 +192,8 @@ public class InspectorFrame extends JDialog {
         btn_refine.setEnabled(enabled);
     }
 
-    public void updateParams(RenderParameters params) {
+    public void updateParams(IterationMap map) {
+        RenderParameters params = map.getRenderParameters();
         lbl_centerRealVal.setText(String.format("%.6f", params.center().getReal()));
         lbl_centerImagVal.setText(String.format("%.6f", params.center().getImag()));
         lbl_complexWidthVal.setText(String.format("%.8f", params.complexWidth()));
@@ -196,6 +201,7 @@ public class InspectorFrame extends JDialog {
         lbl_pixelWidthVal.setText(String.valueOf(params.pixelWidth()));
         lbl_pixelHeightVal.setText(String.valueOf(params.pixelHeight()));
         lbl_maxIterationsVal.setText(String.valueOf(params.maxIterations()));
+        lbl_minIterationVal.setText(String.valueOf(map.getMinIteration()));
     }
 
     private void applyTexts() {
@@ -207,6 +213,7 @@ public class InspectorFrame extends JDialog {
         lbl_pixelWidthKey.setText(I18n.get("field.pixelWidth"));
         lbl_pixelHeightKey.setText(I18n.get("field.pixelHeight"));
         lbl_maxIterationsKey.setText(I18n.get("field.maxIterations"));
+        lbl_minIterationKey.setText(I18n.get("field.minIteration"));
         lbl_palette.setText(I18n.get("field.palette"));
         lbl_paletteSize.setText(I18n.get("label.paletteSize"));
         lbl_curve.setText(I18n.get("label.iterationCurve"));

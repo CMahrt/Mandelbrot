@@ -5,23 +5,27 @@ public class PaletteMapper {
 
     public enum Curve { LINEAR, SQRT, LOG }
 
-    private Curve curve = Curve.LINEAR;
+    private Curve curve = Curve.SQRT;
+    private int minIterations = 0;
     private int maxIterations = 1;
     private int paletteSize   = 256;
 
-    public void configure(int maxIterations, int paletteSize) {
+    public void configure(int minIterations, int maxIterations, int paletteSize) {
+        this.minIterations = minIterations;
         this.maxIterations = maxIterations;
         this.paletteSize   = paletteSize;
     }
 
     /**
      * Mappt eine rohe Iterationszahl auf einen Palettenindex.
-     * Innen-Punkte  (>= maxIterations)   → paletteSize-1  (reservierter letzter Eintrag, schwarz)
-     * Außen-Punkte  (0..maxIterations-1) → 0..paletteSize-2 je nach Kurve
+     * Innen-Punkte  (>= maxIterations)        → paletteSize-1  (reservierter letzter Eintrag, schwarz)
+     * Außen-Punkte  (minIterations..maxIter-1) → 0..paletteSize-2 je nach Kurve
      */
     public int map(int iteration) {
         if (iteration >= maxIterations) return paletteSize - 1;
-        double t = (double) iteration / maxIterations;
+        int range = maxIterations - minIterations;
+        if (range <= 0) return 0;
+        double t = (double) Math.max(0, iteration - minIterations) / range;
         double mapped = switch (curve) {
             case LINEAR -> t;
             case SQRT   -> Math.sqrt(t);

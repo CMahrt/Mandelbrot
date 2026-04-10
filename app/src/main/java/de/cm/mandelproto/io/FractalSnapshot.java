@@ -10,5 +10,6 @@ import java.awt.Color;
 public record FractalSnapshot(
         RenderParameters params,
         int[][]          iterations,  // [col][row]
-        Color[]          palette
+        Color[]          palette,
+        int              minIteration
 ) {}

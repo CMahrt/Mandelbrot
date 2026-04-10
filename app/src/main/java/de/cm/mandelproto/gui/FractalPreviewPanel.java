@@ -138,7 +138,7 @@ public class FractalPreviewPanel extends JPanel implements PropertyChangeListene
         valCenterImag   .setText(String.format("%.8f", params.center().getImag()));
         valComplexWidth .setText(String.format("%.4e", params.complexWidth()));
         valMaxIterations.setText(String.valueOf(params.maxIterations()));
-        valResolution   .setText(params.pixelWidth() + " \u00d7 " + params.pixelHeight());
+        valResolution   .setText(params.pixelWidth() + " × " + params.pixelHeight());
     }
 
     private void clearParams() {
@@ -161,8 +161,7 @@ public class FractalPreviewPanel extends JPanel implements PropertyChangeListene
         int dstH = Math.max(1, (int) (srcH * scale));
 
         PaletteMapper mapper = new PaletteMapper();
-        mapper.setCurve(PaletteMapper.Curve.SQRT);
-        mapper.configure(params.maxIterations(), palette.length);
+        mapper.configure(snap.minIteration(), params.maxIterations(), palette.length);
 
         BufferedImage img = new BufferedImage(dstW, dstH, BufferedImage.TYPE_INT_RGB);
         for (int dstX = 0; dstX < dstW; dstX++) {

@@ -19,11 +19,12 @@ public class MandelbrotPointMap extends IterationMap {
      *
      * @param data col-major: {@code data[col][row]}
      */
-    public static MandelbrotPointMap fromData(RenderParameters params, int[][] data) {
+    public static MandelbrotPointMap fromData(RenderParameters params, int[][] data, int minIteration) {
         MandelbrotPointMap map = new MandelbrotPointMap(params);
         for (int col = 0; col < map.getCols(); col++)
             for (int row = 0; row < map.getRows(); row++)
                 map.points[col][row].setIteration(data[col][row]);
+        map.minIteration = minIteration;
         return map;
     }
 

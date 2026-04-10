@@ -47,6 +47,8 @@ public final class FractalIO {
             colorsArr.addArray().add(c.getRed()).add(c.getGreen()).add(c.getBlue());
         }
 
+        node.put("minIteration", iterationMap.getMinIteration());
+
         // Iterations: zeilenweise [row][col]
         int cols = iterationMap.getCols();
         int rows = iterationMap.getRows();
@@ -96,7 +98,19 @@ public final class FractalIO {
                 iterations[col][row] = rowNode.get(col).asInt();
         }
 
-        log.info("Fraktal geladen ({} × {} Punkte, Palette: {} Einträge)", cols, rows, paletteSize);
-        return new FractalSnapshot(params, iterations, paletteColors);
+        int minIteration = node.path("minIteration").asInt(-1);
+        if (minIteration < 0) {
+            int min = params.maxIterations();
+            for (int col = 0; col < cols; col++)
+                for (int row = 0; row < rows; row++) {
+                    int v = iterations[col][row];
+                    if (v < params.maxIterations() && v < min) min = v;
+                }
+            minIteration = (min == params.maxIterations()) ? 0 : min;
+            log.info("minIteration aus Iterationsmap berechnet: {}", minIteration);
+        }
+
+        log.info("Fraktal geladen ({} × {} Punkte, Palette: {} Einträge, minIter: {})", cols, rows, paletteSize, minIteration);
+        return new FractalSnapshot(params, iterations, paletteColors, minIteration);
     }
 }

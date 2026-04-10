@@ -65,9 +65,9 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 - Effekt: visuell interessante Randbereiche bleiben scharf, egal wie groß die max. Iterationstiefe ist
 
 ### Palette-Offset: minimale Iteration als Untergrenze
-- [ ] `IterationMap` ermittelt die kleinste tatsächlich vorkommende Escape-Iteration (nur Außen-Punkte, d.h. `iteration < maxIterations`) — `getMinIteration()` mit Lazy-Cache (wird nach `tileIterate()` und `refine()` invalidiert)
-- [ ] `PaletteMapper.configure()` erhält zusätzlich `minIterations`; `map()` normiert auf `[minIterations, maxIterations]` statt `[0, maxIterations]`
-- [ ] `PixelCanvas.drawImage()` übergibt `iterationMap.getMinIteration()` an `configure()`
+- [v] `IterationMap` ermittelt die kleinste tatsächlich vorkommende Escape-Iteration (nur Außen-Punkte, d.h. `iteration < maxIterations`) — einmalig am Ende von `tileIterate()`; auch in `FractalSnapshot` + `.mfrac` gespeichert
+- [v] `PaletteMapper.configure()` erhält zusätzlich `minIterations`; `map()` normiert auf `[minIterations, maxIterations]` statt `[0, maxIterations]`
+- [v] `PixelCanvas.drawImage()` übergibt `iterationMap.getMinIteration()` an `configure()`
 - Effekt: Bei tiefen Zooms (z.B. alle Pixel zwischen Iter. 75–800) wird die volle Palette auf den tatsächlichen Wertebereich gestreckt statt die untere Hälfte zu verschwenden
 
 ---

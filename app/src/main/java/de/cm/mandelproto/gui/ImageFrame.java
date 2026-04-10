@@ -33,15 +33,16 @@ public class ImageFrame extends JFrame implements MouseListener {
 
     private Point dragStart;
     private Rectangle draftRect;
+    private boolean selectionMode = false;
 
     public ImageFrame(String title, FractalSnapshot snapshot, MainFrame mainFrame) {
         super(title);
         this.mainFrame = mainFrame;
         PaletteMapper paletteMapper = new PaletteMapper();
         palette      = new Palette(snapshot.palette());
-        iterationMap = MandelbrotPointMap.fromData(snapshot.params(), snapshot.iterations());
+        iterationMap = MandelbrotPointMap.fromData(snapshot.params(), snapshot.iterations(), snapshot.minIteration());
         pixelCanvas  = new PixelCanvas(iterationMap.getCols(), iterationMap.getRows() + 40, iterationMap, palette, paletteMapper);
-        inspector    = new InspectorFrame(snapshot.params(), palette, paletteMapper, this);
+        inspector    = new InspectorFrame(iterationMap, palette, paletteMapper, this);
         configureWindow();
         registerListeners();
         setVisible(true);
@@ -55,7 +56,7 @@ public class ImageFrame extends JFrame implements MouseListener {
         palette      = new Palette(PaletteLibrary.byName("Graustufen", 256));
         iterationMap = new MandelbrotPointMap(params);
         pixelCanvas  = new PixelCanvas(iterationMap.getCols(), iterationMap.getRows() + 40, iterationMap, palette, paletteMapper);
-        inspector    = new InspectorFrame(params, palette, paletteMapper, this);
+        inspector    = new InspectorFrame(iterationMap, palette, paletteMapper, this);
         configureWindow();
         registerListeners();
         setVisible(true);
@@ -80,7 +81,6 @@ public class ImageFrame extends JFrame implements MouseListener {
                 int height = Math.abs(e.getY() - dragStart.y);
                 draftRect = new Rectangle(left, top, width, height);
                 pixelCanvas.setPreviewRect(new Rectangle(draftRect));
-                inspector.updateParams(computeParamsForRect(draftRect));
             }
         });
         addWindowListener(new WindowAdapter() {
@@ -107,6 +107,7 @@ public class ImageFrame extends JFrame implements MouseListener {
             protected void done() {
                 setBusy(false);
                 drawImage();
+                inspector.updateParams(iterationMap);
                 toFront();
             }
         }.execute();
@@ -125,6 +126,7 @@ public class ImageFrame extends JFrame implements MouseListener {
     /** Versetzt dieses Fenster in den Selektionsmodus (aufgerufen vom InspectorFrame). */
     public void enterSelectionMode() {
         log.debug("Selektionsmodus gestartet: {}", getTitle());
+        selectionMode = true;
         draftRect = null;
         pixelCanvas.setPreviewRect(null);
         pixelCanvas.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
@@ -147,7 +149,6 @@ public class ImageFrame extends JFrame implements MouseListener {
         }
         pixelCanvas.setPreviewRect(new Rectangle(draftRect));
         RenderParameters params = computeParamsForRect(draftRect);
-        inspector.updateParams(params);
         return params;
     }
 
@@ -161,6 +162,7 @@ public class ImageFrame extends JFrame implements MouseListener {
                         selectionParams,
                         this::adjustDraftRect
                 );
+        selectionMode = false;
         pixelCanvas.setCursor(Cursor.getDefaultCursor());
         draftRect = null;
         pixelCanvas.setPreviewRect(null);
@@ -198,6 +200,7 @@ public class ImageFrame extends JFrame implements MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        if (!selectionMode) return;
         log.debug("mousePressed on {}, {}", e.getX(), e.getY());
         dragStart = new Point(e.getX(), e.getY());
         draftRect = null;
@@ -210,6 +213,7 @@ public class ImageFrame extends JFrame implements MouseListener {
         if (draftRect != null && draftRect.width >= 5 && draftRect.height >= 5) {
             openParameterDialogForSelection();
         } else {
+            selectionMode = false;
             pixelCanvas.setCursor(Cursor.getDefaultCursor());
         }
     }
@@ -282,7 +286,7 @@ public class ImageFrame extends JFrame implements MouseListener {
             protected void done() {
                 setBusy(false);
                 drawImage();
-                inspector.updateParams(iterationMap.getRenderParameters());
+                inspector.updateParams(iterationMap);
                 inspector.setRefineEnabled(true);
             }
         }.execute();

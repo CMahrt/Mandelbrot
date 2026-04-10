@@ -17,6 +17,7 @@ public abstract class IterationMap {
     protected IterablePoint[][] points;
 
     private int iterations;
+    @Getter protected int minIteration = 0;
 
     protected IterationMap(RenderParameters params) {
         this.center = params.center();
@@ -45,6 +46,13 @@ public abstract class IterationMap {
 
     public void tileIterate() {
         tileIterate(0, 0, cols, rows);
+        int min = maxIterations;
+        for (int col = 0; col < cols; col++)
+            for (int row = 0; row < rows; row++) {
+                int iter = points[col][row].getIteration();
+                if (iter < maxIterations && iter < min) min = iter;
+            }
+        minIteration = (min == maxIterations) ? 0 : min;
     }
 
     private void tileIterate(int left, int top, int right, int bottom) {
