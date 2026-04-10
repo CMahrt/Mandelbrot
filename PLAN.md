@@ -64,6 +64,12 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 - [v] Kurvenform einstellbar (z.B. logarithmisch, quadratisch, linear) — LINEAR, SQRT, LOG in `PaletteMapper`
 - Effekt: visuell interessante Randbereiche bleiben scharf, egal wie groß die max. Iterationstiefe ist
 
+### Palette-Offset: minimale Iteration als Untergrenze
+- [ ] `IterationMap` ermittelt die kleinste tatsächlich vorkommende Escape-Iteration (nur Außen-Punkte, d.h. `iteration < maxIterations`) — `getMinIteration()` mit Lazy-Cache (wird nach `tileIterate()` und `refine()` invalidiert)
+- [ ] `PaletteMapper.configure()` erhält zusätzlich `minIterations`; `map()` normiert auf `[minIterations, maxIterations]` statt `[0, maxIterations]`
+- [ ] `PixelCanvas.drawImage()` übergibt `iterationMap.getMinIteration()` an `configure()`
+- Effekt: Bei tiefen Zooms (z.B. alle Pixel zwischen Iter. 75–800) wird die volle Palette auf den tatsächlichen Wertebereich gestreckt statt die untere Hälfte zu verschwenden
+
 ---
 
 ## Navigation & Steuerung
@@ -156,16 +162,21 @@ Ablösung von `Panel_Mandelbrot` durch ein neues, klar getrenntes UI-Modell:
 - [ ] Bild exportieren als JPEG oder PNG
   - PNG verlustfrei (empfehlenswert für scharfe Farbgrenzen), JPEG für kleinere Dateien
 
+### RenderParameters-Hash
+- [ ] `RenderParameters` bekommt eine `hash()`-Methode (oder `hashCode()`-Override) — kompakter Fingerabdruck aus center, complexWidth, complexHeight, pixelWidth, maxIterations
+- [ ] Mögliche Verwendungen: Fenstername/Dateivorschlag, Duplikaterkennung beim Laden, Abgleich Parent-Kind-Kette, Cache-Key für vorberechnete Bilder
+- [ ] Implementierung: `Objects.hash(...)` für schnellen int-Hash; alternativ SHA-1/MD5 der Felder für kollisionsarmen String-Hash (z.B. `"mfrac-a3f7c2"`)
+
 ### Rohdaten (vollständig)
 - [v] Iterationsmap + Palette + Berechnungsparameter speichern — `.mfrac` JSON-Format
 - [v] Ermöglicht: Bild wieder laden ohne Neuberechnung, Palette nachträglich ändern
 
 ### Vorschau im Lade-Dialog
-- [ ] `JFileChooser.setAccessory()` — kleines Preview-Panel neben dem Datei-Browser
-- [ ] Panel hört auf `PropertyChangeListener` des Choosers (`SELECTED_FILE_CHANGED_PROPERTY`)
-- [ ] Bei Auswahl einer `.mfrac`-Datei: Iterationsmap + Palette laden, in feste Größe (z.B. 128×128 px) skalieren, als `BufferedImage` anzeigen
-- [ ] Kein vollständiges `FractalIO.load()` nötig — nur Iterationsdaten + Palette; RenderParameters reichen für die Skalierung
-- [ ] Bei ungültiger Datei oder Ladefehler: leeres Panel oder Platzhaltertext
+- [x] `JFileChooser.setAccessory()` — kleines Preview-Panel neben dem Datei-Browser
+- [x] Panel hört auf `PropertyChangeListener` des Choosers (`SELECTED_FILE_CHANGED_PROPERTY`)
+- [x] Bei Auswahl einer `.mfrac`-Datei: Iterationsmap + Palette laden, in feste Größe (z.B. 128×128 px) skalieren, als `BufferedImage` anzeigen
+- [x] `FractalIO.load()` im SwingWorker-Hintergrund; Generations-Counter verhindert veraltete Ergebnisse
+- [x] Bei ungültiger Datei oder Ladefehler: leeres Panel oder Platzhaltertext
 - Effekt: Dateien mit nichtssagenden Namen sind trotzdem erkennbar
 
 ### Parameter-Snapshot (leichtgewichtig)
@@ -196,8 +207,15 @@ Ablösung von `Panel_Mandelbrot` durch ein neues, klar getrenntes UI-Modell:
 
 ## Animation & Video
 
+### Parent-Map-Referenz (Zoom-Kette)
+- [ ] Jedes `ImageFrame` kennt den `RenderParameters`-Snapshot seines Eltern-Frames — die Koordinaten, aus denen hereingezoomt wurde
+- [ ] Beim Erstellen eines neuen Ausschnitts (`openImage()`) übergibt `MainFrame` oder `ImageFrame` die eigenen Parameter als `parentParams` an das neue Frame
+- [ ] Die Kette kaskadiert: A → B → C ergibt eine vollständige Zoom-Historie
+- [ ] Voraussetzung und Grundlage für die Zoom-Animation (Fly-Through) weiter unten
+- Effekt: Jedes Bild weiß, woher es stammt; Navigation zurück zum Parent möglich; Zoom-Pfade rekonstruierbar
+
 ### Zoom-Animation (Fly-Through)
-- [ ] Benutzer definiert Start- und Zielkoordinate (Mittelpunkt + Zoom) — z.B. per Bookmark
+- [ ] Benutzer definiert Start- und Zielkoordinate (Mittelpunkt + Zoom) — z.B. per Bookmark **oder über die Parent-Map-Kette**
 - [ ] Programm berechnet N Zwischenframes (interpoliert Mittelpunkt und Zoomfaktor logarithmisch)
 - [ ] Frames werden vorab gerendert und im Speicher (oder auf Disk) gehalten
 - [ ] Abspielansicht zeigt die Frames als flüssiges Filmchen (einstellbare FPS)

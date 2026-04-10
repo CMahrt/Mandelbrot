@@ -88,6 +88,9 @@ public class MainFrame extends JFrame {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle(I18n.get("dialog.loadFractal.title"));
         chooser.setFileFilter(new FileNameExtensionFilter(I18n.get("filefilter.mfrac.description"), "mfrac"));
+        FractalPreviewPanel previewPanel = new FractalPreviewPanel();
+        chooser.setAccessory(previewPanel);
+        chooser.addPropertyChangeListener(previewPanel);
         if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return;
 
         File file = chooser.getSelectedFile();
