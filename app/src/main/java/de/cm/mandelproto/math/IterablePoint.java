@@ -5,4 +5,5 @@ public interface IterablePoint {
 
     int getIteration();
     void setIteration(int iteration);
+    void reset();
 }

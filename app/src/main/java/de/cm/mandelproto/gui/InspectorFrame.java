@@ -39,6 +39,7 @@ public class InspectorFrame extends JDialog {
     // Action
     private JButton btn_newSelection;
     private JButton btn_save;
+    private JButton btn_refine;
 
     public InspectorFrame(RenderParameters params, Palette palette, PaletteMapper paletteMapper, ImageFrame imageFrame) {
         super(imageFrame, false);  // imageFrame als Owner, nicht modal
@@ -109,9 +110,12 @@ public class InspectorFrame extends JDialog {
         btn_newSelection.addActionListener(e -> imageFrame.enterSelectionMode());
         btn_save = new JButton();
         btn_save.addActionListener(e -> imageFrame.saveToFile());
+        btn_refine = new JButton();
+        btn_refine.addActionListener(e -> imageFrame.startRefine());
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
         p.add(btn_newSelection);
         p.add(btn_save);
+        p.add(btn_refine);
         return p;
     }
 
@@ -180,6 +184,10 @@ public class InspectorFrame extends JDialog {
 
     // ── Öffentliche API ──────────────────────────────────────────────────────
 
+    public void setRefineEnabled(boolean enabled) {
+        btn_refine.setEnabled(enabled);
+    }
+
     public void updateParams(RenderParameters params) {
         lbl_centerRealVal.setText(String.format("%.6f", params.center().getReal()));
         lbl_centerImagVal.setText(String.format("%.6f", params.center().getImag()));
@@ -206,6 +214,7 @@ public class InspectorFrame extends JDialog {
         btn_openRunningColors.setText(I18n.get("button.configureRunningColors"));
         btn_newSelection.setText(I18n.get("button.newSelection"));
         btn_save.setText(I18n.get("button.saveFractal"));
+        btn_refine.setText(I18n.get("button.refine"));
         pack();
     }
 

@@ -31,4 +31,10 @@ public class MandelbrotPoint implements IterablePoint {
     public void setIteration(int iteration) {
         this.iteration = iteration;
     }
+
+    @Override
+    public void reset() {
+        result = new ComplexNumber(0, 0);
+        iteration = 0;
+    }
 }

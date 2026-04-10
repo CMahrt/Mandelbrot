@@ -50,11 +50,11 @@ Dieses Dokument sammelt geplante Features. Status: `[ ]` offen, `[x]` fertig, `[
 - [v] Je tiefer der Zoom, desto höhere Tiefe nötig — automatischer Vorschlag in der UI
 
 ### Nachschärfen (Incremental Refine)
-- [ ] Button „Nachschärfen" im Inspector — öffnet Dialog zur Eingabe einer neuen (höheren) Iterationstiefe
-- [ ] Nur Punkte, die bisher `maxIterations` erreicht haben, werden neu berechnet — sie gelten als „noch unentschieden" und könnten mit mehr Iterationen entkommen
-- [ ] Punkte, die bereits entkommen sind (Iterationszahl < altes Maximum), bleiben unverändert — kein Neuberechnen nötig
-- [ ] `IterationMap` muss dazu den alten `maxIterations`-Wert kennen, um die Kandidaten-Punkte identifizieren zu können
-- [ ] Nach dem Nachschärfen: `maxIterations` des Frames wird auf den neuen Wert aktualisiert
+- [v] Button „Nachschärfen" im Inspector — öffnet Dialog zur Eingabe einer neuen (höheren) Iterationstiefe
+- [v] Nur Punkte, die bisher `maxIterations` erreicht haben, werden neu berechnet — sie gelten als „noch unentschieden" und könnten mit mehr Iterationen entkommen
+- [v] Punkte, die bereits entkommen sind (Iterationszahl < altes Maximum), bleiben unverändert — kein Neuberechnen nötig
+- [v] `IterationMap` muss dazu den alten `maxIterations`-Wert kennen, um die Kandidaten-Punkte identifizieren zu können
+- [v] Nach dem Nachschärfen: `maxIterations` des Frames wird auf den neuen Wert aktualisiert
 - Effekt: Man kann ein bereits gerendertes Bild mit wenig Aufwand verfeinern, ohne alles neu zu rechnen
 
 ### Iterations-zu-Paletten-Kurve (Mapping)
@@ -159,6 +159,14 @@ Ablösung von `Panel_Mandelbrot` durch ein neues, klar getrenntes UI-Modell:
 ### Rohdaten (vollständig)
 - [v] Iterationsmap + Palette + Berechnungsparameter speichern — `.mfrac` JSON-Format
 - [v] Ermöglicht: Bild wieder laden ohne Neuberechnung, Palette nachträglich ändern
+
+### Vorschau im Lade-Dialog
+- [ ] `JFileChooser.setAccessory()` — kleines Preview-Panel neben dem Datei-Browser
+- [ ] Panel hört auf `PropertyChangeListener` des Choosers (`SELECTED_FILE_CHANGED_PROPERTY`)
+- [ ] Bei Auswahl einer `.mfrac`-Datei: Iterationsmap + Palette laden, in feste Größe (z.B. 128×128 px) skalieren, als `BufferedImage` anzeigen
+- [ ] Kein vollständiges `FractalIO.load()` nötig — nur Iterationsdaten + Palette; RenderParameters reichen für die Skalierung
+- [ ] Bei ungültiger Datei oder Ladefehler: leeres Panel oder Platzhaltertext
+- Effekt: Dateien mit nichtssagenden Namen sind trotzdem erkennbar
 
 ### Parameter-Snapshot (leichtgewichtig)
 - [ ] Nur Berechnungsparameter speichern (Koordinaten, Zoom, Iterationstiefe, Palettenreferenz)

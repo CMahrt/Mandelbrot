@@ -80,6 +80,17 @@ public abstract class IterationMap {
         }
     }
 
+    public void refine(int newMaxIterations) {
+        int oldMax = this.maxIterations;
+        this.maxIterations = newMaxIterations;
+        for (int col = 0; col < cols; col++)
+            for (int row = 0; row < rows; row++)
+                if (points[col][row].getIteration() == oldMax) {
+                    points[col][row].reset();
+                    iterateFully(points[col][row]);
+                }
+    }
+
     private void iterateFully(IterablePoint point) {
         while (point.getIteration() < maxIterations) {
             if (!point.iterate()) break;

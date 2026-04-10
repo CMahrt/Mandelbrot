@@ -19,6 +19,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Optional;
 
 @Slf4j
@@ -227,6 +228,54 @@ public class ImageFrame extends JFrame implements MouseListener {
                     I18n.get("error.title"),
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public void startRefine() {
+        int currentMax = iterationMap.getMaxIterations();
+        int suggested  = Math.max(currentMax + 100, currentMax * 3);
+        Object input = JOptionPane.showInputDialog(
+                this,
+                MessageFormat.format(I18n.get("dialog.refine.prompt"), currentMax),
+                I18n.get("dialog.refine.title"),
+                JOptionPane.QUESTION_MESSAGE,
+                null, null,
+                suggested
+        );
+        if (input == null) return; // Abgebrochen
+        int newMax;
+        try {
+            newMax = Integer.parseInt(input.toString().trim());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    I18n.get("error.refine.tooLow"),
+                    I18n.get("error.title"),
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (newMax <= currentMax) {
+            JOptionPane.showMessageDialog(this,
+                    I18n.get("error.refine.tooLow"),
+                    I18n.get("error.title"),
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        inspector.setRefineEnabled(false);
+        final int finalNewMax = newMax;
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                long t = System.currentTimeMillis();
+                iterationMap.refine(finalNewMax);
+                log.info("refine({}) = {} ms", finalNewMax, System.currentTimeMillis() - t);
+                return null;
+            }
+            @Override
+            protected void done() {
+                drawImage();
+                inspector.updateParams(iterationMap.getRenderParameters());
+                inspector.setRefineEnabled(true);
+            }
+        }.execute();
     }
 
     private static int suggestMaxIterations(double complexWidth) {
