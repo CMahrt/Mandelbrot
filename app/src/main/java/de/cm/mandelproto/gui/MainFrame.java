@@ -27,8 +27,16 @@ public class MainFrame extends JFrame {
     private JRadioButtonMenuItem itemLangDe;
     private JRadioButtonMenuItem itemLangEn;
 
-    public static final RenderParameters STARTING_PARAMS = new RenderParameters(
-            new ComplexNumber(-.5d, 0d), 3.84d, 2.16d, 1280, 250);
+    public static final double REFERENCE_COMPLEX_WIDTH = 3.84;
+
+    private static final double        REFERENCE_COMPLEX_HEIGHT = 2.16;
+    private static final int           STARTING_PIXEL_WIDTH     = 1280;
+    private static final int           STARTING_MAX_ITERATIONS  = 250;
+    private static final ComplexNumber STARTING_CENTER          = new ComplexNumber(-.5d, 0d);
+
+    private static final RenderParameters STARTING_PARAMS = new RenderParameters(
+            STARTING_CENTER, REFERENCE_COMPLEX_WIDTH, REFERENCE_COMPLEX_HEIGHT,
+            STARTING_PIXEL_WIDTH, STARTING_MAX_ITERATIONS);
 
     public MainFrame() {
         super();

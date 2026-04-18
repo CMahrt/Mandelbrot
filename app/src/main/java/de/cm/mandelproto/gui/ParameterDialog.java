@@ -25,8 +25,7 @@ public class ParameterDialog extends JDialog {
 
     private final JLabel val_centerReal;
     private final JLabel val_centerImag;
-    private final JLabel val_complexWidth;
-    private final JLabel val_complexHeight;
+    private final JLabel val_zoom;
     private final IntTextField tf_pixelWidth;
     private final IntTextField tf_pixelHeight;
     private final IntTextField tf_maxIterations;
@@ -53,10 +52,9 @@ public class ParameterDialog extends JDialog {
                 I18n.get("dialog.newImage.title"), ModalityType.APPLICATION_MODAL);
         this.current = initialParams;
 
-        val_centerReal   = makeValueLabel(fmt(initialParams.center().getReal()));
-        val_centerImag   = makeValueLabel(fmt(initialParams.center().getImag()));
-        val_complexWidth = makeValueLabel(fmt(initialParams.complexWidth()));
-        val_complexHeight= makeValueLabel(fmt(initialParams.complexHeight()));
+        val_centerReal = makeValueLabel(fmt(initialParams.center().getReal()));
+        val_centerImag = makeValueLabel(fmt(initialParams.center().getImag()));
+        val_zoom       = makeValueLabel(Format.zoom(MainFrame.REFERENCE_COMPLEX_WIDTH / initialParams.complexWidth()));
 
         tf_pixelWidth = new IntTextField(I18n.get("field.pixelWidth"));
         tf_pixelWidth.setInt(initialParams.pixelWidth());
@@ -84,10 +82,9 @@ public class ParameterDialog extends JDialog {
 
     private JPanel buildInfoPanel() {
         JPanel p = new JPanel(new GridLayout(0, 2, 8, 2));
-        p.add(new JLabel(I18n.get("field.centerReal")));    p.add(val_centerReal);
-        p.add(new JLabel(I18n.get("field.centerImag")));    p.add(val_centerImag);
-        p.add(new JLabel(I18n.get("field.complexWidth")));  p.add(val_complexWidth);
-        p.add(new JLabel(I18n.get("field.complexHeight"))); p.add(val_complexHeight);
+        p.add(new JLabel(I18n.get("field.centerReal"))); p.add(val_centerReal);
+        p.add(new JLabel(I18n.get("field.centerImag"))); p.add(val_centerImag);
+        p.add(new JLabel(I18n.get("field.zoom")));        p.add(val_zoom);
         return p;
     }
 
@@ -118,8 +115,7 @@ public class ParameterDialog extends JDialog {
         current = params;
         val_centerReal.setText(fmt(params.center().getReal()));
         val_centerImag.setText(fmt(params.center().getImag()));
-        val_complexWidth.setText(fmt(params.complexWidth()));
-        val_complexHeight.setText(fmt(params.complexHeight()));
+        val_zoom.setText(Format.zoom(MainFrame.REFERENCE_COMPLEX_WIDTH / params.complexWidth()));
         updatePixelHeight();
     }
 

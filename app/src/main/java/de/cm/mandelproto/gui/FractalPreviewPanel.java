@@ -22,7 +22,7 @@ public class FractalPreviewPanel extends JPanel implements PropertyChangeListene
     private final JLabel imageLabel;
     private final JLabel valCenterReal;
     private final JLabel valCenterImag;
-    private final JLabel valComplexWidth;
+    private final JLabel valZoom;
     private final JLabel valMaxIterations;
     private final JLabel valResolution;
 
@@ -44,7 +44,7 @@ public class FractalPreviewPanel extends JPanel implements PropertyChangeListene
 
         valCenterReal    = new JLabel();
         valCenterImag    = new JLabel();
-        valComplexWidth  = new JLabel();
+        valZoom          = new JLabel();
         valMaxIterations = new JLabel();
         valResolution    = new JLabel();
 
@@ -53,8 +53,8 @@ public class FractalPreviewPanel extends JPanel implements PropertyChangeListene
         infoPanel.add(valCenterReal);
         infoPanel.add(new JLabel(I18n.get("field.centerImag") + ":"));
         infoPanel.add(valCenterImag);
-        infoPanel.add(new JLabel(I18n.get("field.complexWidth") + ":"));
-        infoPanel.add(valComplexWidth);
+        infoPanel.add(new JLabel(I18n.get("field.zoom") + ":"));
+        infoPanel.add(valZoom);
         infoPanel.add(new JLabel(I18n.get("field.maxIterations") + ":"));
         infoPanel.add(valMaxIterations);
         infoPanel.add(new JLabel(I18n.get("preview.resolution") + ":"));
@@ -136,7 +136,7 @@ public class FractalPreviewPanel extends JPanel implements PropertyChangeListene
         imageLabel.setText(null);
         valCenterReal   .setText(String.format("%.8f", params.center().getReal()));
         valCenterImag   .setText(String.format("%.8f", params.center().getImag()));
-        valComplexWidth .setText(String.format("%.4e", params.complexWidth()));
+        valZoom         .setText(Format.zoom(MainFrame.REFERENCE_COMPLEX_WIDTH / params.complexWidth()));
         valMaxIterations.setText(String.valueOf(params.maxIterations()));
         valResolution   .setText(params.pixelWidth() + " × " + params.pixelHeight());
     }
@@ -144,10 +144,11 @@ public class FractalPreviewPanel extends JPanel implements PropertyChangeListene
     private void clearParams() {
         valCenterReal   .setText("");
         valCenterImag   .setText("");
-        valComplexWidth .setText("");
+        valZoom         .setText("");
         valMaxIterations.setText("");
         valResolution   .setText("");
     }
+
 
     private static BufferedImage buildPreviewImage(FractalSnapshot snap) {
         RenderParameters params  = snap.params();

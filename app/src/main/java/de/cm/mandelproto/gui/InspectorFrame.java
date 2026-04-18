@@ -22,8 +22,7 @@ public class InspectorFrame extends JDialog {
     // Info section
     private JLabel lbl_centerRealKey, lbl_centerRealVal;
     private JLabel lbl_centerImagKey, lbl_centerImagVal;
-    private JLabel lbl_complexWidthKey, lbl_complexWidthVal;
-    private JLabel lbl_complexHeightKey, lbl_complexHeightVal;
+    private JLabel lbl_zoomKey, lbl_zoomVal;
     private JLabel lbl_pixelWidthKey, lbl_pixelWidthVal;
     private JLabel lbl_pixelHeightKey, lbl_pixelHeightVal;
     private JLabel lbl_maxIterationsKey, lbl_maxIterationsVal;
@@ -76,23 +75,21 @@ public class InspectorFrame extends JDialog {
 
         lbl_centerRealKey    = new JLabel(); lbl_centerRealVal    = new JLabel();
         lbl_centerImagKey    = new JLabel(); lbl_centerImagVal    = new JLabel();
-        lbl_complexWidthKey  = new JLabel(); lbl_complexWidthVal  = new JLabel();
-        lbl_complexHeightKey = new JLabel(); lbl_complexHeightVal = new JLabel();
+        lbl_zoomKey          = new JLabel(); lbl_zoomVal          = new JLabel();
         lbl_pixelWidthKey    = new JLabel(); lbl_pixelWidthVal    = new JLabel();
         lbl_pixelHeightKey   = new JLabel(); lbl_pixelHeightVal   = new JLabel();
         lbl_maxIterationsKey = new JLabel(); lbl_maxIterationsVal = new JLabel();
         lbl_minIterationKey  = new JLabel(); lbl_minIterationVal  = new JLabel();
 
         for (JLabel val : new JLabel[]{lbl_centerRealVal, lbl_centerImagVal,
-                lbl_complexWidthVal, lbl_complexHeightVal,
+                lbl_zoomVal,
                 lbl_pixelWidthVal, lbl_pixelHeightVal, lbl_maxIterationsVal, lbl_minIterationVal}) {
             val.setHorizontalAlignment(JLabel.RIGHT);
         }
 
         p.add(lbl_centerRealKey);    p.add(lbl_centerRealVal);
         p.add(lbl_centerImagKey);    p.add(lbl_centerImagVal);
-        p.add(lbl_complexWidthKey);  p.add(lbl_complexWidthVal);
-        p.add(lbl_complexHeightKey); p.add(lbl_complexHeightVal);
+        p.add(lbl_zoomKey);          p.add(lbl_zoomVal);
         p.add(lbl_pixelWidthKey);    p.add(lbl_pixelWidthVal);
         p.add(lbl_pixelHeightKey);   p.add(lbl_pixelHeightVal);
         p.add(lbl_maxIterationsKey); p.add(lbl_maxIterationsVal);
@@ -196,8 +193,7 @@ public class InspectorFrame extends JDialog {
         RenderParameters params = map.getRenderParameters();
         lbl_centerRealVal.setText(String.format("%.6f", params.center().getReal()));
         lbl_centerImagVal.setText(String.format("%.6f", params.center().getImag()));
-        lbl_complexWidthVal.setText(String.format("%.8f", params.complexWidth()));
-        lbl_complexHeightVal.setText(String.format("%.8f", params.complexHeight()));
+        lbl_zoomVal.setText(Format.zoom(MainFrame.REFERENCE_COMPLEX_WIDTH / params.complexWidth()));
         lbl_pixelWidthVal.setText(String.valueOf(params.pixelWidth()));
         lbl_pixelHeightVal.setText(String.valueOf(params.pixelHeight()));
         lbl_maxIterationsVal.setText(String.valueOf(params.maxIterations()));
@@ -208,8 +204,7 @@ public class InspectorFrame extends JDialog {
         setTitle(I18n.get("inspector.title"));
         lbl_centerRealKey.setText(I18n.get("field.centerReal"));
         lbl_centerImagKey.setText(I18n.get("field.centerImag"));
-        lbl_complexWidthKey.setText(I18n.get("field.complexWidth"));
-        lbl_complexHeightKey.setText(I18n.get("field.complexHeight"));
+        lbl_zoomKey.setText(I18n.get("field.zoom"));
         lbl_pixelWidthKey.setText(I18n.get("field.pixelWidth"));
         lbl_pixelHeightKey.setText(I18n.get("field.pixelHeight"));
         lbl_maxIterationsKey.setText(I18n.get("field.maxIterations"));
