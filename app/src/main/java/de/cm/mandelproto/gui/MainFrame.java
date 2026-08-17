@@ -43,7 +43,7 @@ public class MainFrame extends JFrame {
         createMenu();
         pack();
         setVisible(true);
-        openImage(STARTING_PARAMS);
+        openImage(STARTING_PARAMS).runAfterInitialRender(this::toFront);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
@@ -87,9 +87,11 @@ public class MainFrame extends JFrame {
         updateWindowsMenu();
     }
 
-    public void openImage(RenderParameters params) {
-        imageFrames.add(new ImageFrame("Mandelbrot " + (imageFrames.size() + 1), params, this));
+    public ImageFrame openImage(RenderParameters params) {
+        ImageFrame frame = new ImageFrame("Mandelbrot " + (imageFrames.size() + 1), params, this);
+        imageFrames.add(frame);
         updateWindowsMenu();
+        return frame;
     }
 
     private void loadFractalFromFile() {

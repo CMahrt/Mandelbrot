@@ -36,6 +36,7 @@ public class ImageFrame extends JFrame implements MouseListener {
     private Point dragStart;
     private Rectangle draftRect;
     private boolean selectionMode = false;
+    private Runnable onInitialRenderComplete;
 
     public ImageFrame(String title, FractalSnapshot snapshot, MainFrame mainFrame) {
         super(title);
@@ -191,8 +192,17 @@ public class ImageFrame extends JFrame implements MouseListener {
                 inspector.updateParams(iterationMap);
                 scrollToCenter();
                 toFront();
+                if (onInitialRenderComplete != null) {
+                    onInitialRenderComplete.run();
+                    onInitialRenderComplete = null;
+                }
             }
         }.execute();
+    }
+
+    /** Wird einmalig nach Abschluss der aktuell laufenden Erstberechnung ausgeführt. */
+    public void runAfterInitialRender(Runnable callback) {
+        onInitialRenderComplete = callback;
     }
 
     private void setBusy(boolean busy) {
