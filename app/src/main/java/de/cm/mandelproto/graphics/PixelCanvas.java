@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 
 @Slf4j
 public class PixelCanvas extends JComponent {
@@ -81,10 +82,12 @@ public class PixelCanvas extends JComponent {
 
     public void drawImage() {
         paletteMapper.configure(iterationMap.getMinIteration(), iterationMap.getMaxIterations(), palette.size());
-        for (int x = 0; x < image.getWidth(); x++) {
+        int width = image.getWidth();
+        int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+        for (int x = 0; x < width; x++) {
             for (int y = 0; y < image.getHeight(); y++) {
                 int iteration = iterationMap.getIterationForCoordinate(x, y);
-                image.setRGB(x, y, palette.getColor(paletteMapper.map(iteration)));
+                pixels[y * width + x] = palette.getColor(paletteMapper.map(iteration));
             }
         }
         repaint();
